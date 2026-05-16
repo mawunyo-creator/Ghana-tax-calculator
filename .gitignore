@@ -1,1 +1,4 @@
-git
+_ _pycache_ _/
+*.pyc
+.DS_Store
+Thumbs.db
