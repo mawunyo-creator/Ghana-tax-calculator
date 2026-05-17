@@ -1,6 +1,8 @@
 import streamlit as st
 import json
-
+def load_tax_bands():
+    with open("Tax_bands.json","r") as file:
+        return json.load(file)
 # ==========================================
 # 1. PAGE CONFIGURATION & THEME
 # ==========================================
@@ -119,6 +121,34 @@ with tab_summary:
     with col_left:
         st.markdown("#### Itemized Payroll Overview")
         # Setting up the structured table data as demanded by the UI rules
+# Fetch dynamic GRA bands and slice income progressively
+        bands_data = load_tax_bands()
+        remaining_income = net_take_home_salary
+
+        tax_table_rows = []
+
+        for band in bands_data["monthly_tax_bands"]:
+            rate = band["tax_rate"]
+            width = band["band_limit"]
+            
+            if remaining_income <= 0:
+                break
+                
+            if width == -1:  # Over the final threshold
+                taxable_in_band = remaining_income
+            else:
+                taxable_in_band = min(remaining_income, width)
+                
+            tax_charged = taxable_in_band * rate
+            remaining_income -= taxable_in_band
+            
+            tax_table_rows.append({
+                "Tax Band Rate (%)": f"{rate * 100}%",
+                "Band Width": width if width != -1 else "No Limit",
+                "Taxable Amount in Band": taxable_in_band,
+                "Tax Charged": tax_charged
+            })
+
         payroll_data = {
             "Payroll Component Item": [
                 "Basic Monthly Contract Salary",
@@ -168,3 +198,4 @@ with tab_education:
         "the one preceding it. This guarantees that individuals with larger incomes shoulder a higher proportional "
         "tax volume relative to lower-wage earners."
     )
+    
