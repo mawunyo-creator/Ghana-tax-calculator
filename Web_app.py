@@ -82,6 +82,19 @@ other_deductions = st.sidebar.number_input(
 # to link your full progressive tax calculation engine.
 total_gross_earnings = gross_salary + allowances + bonuses + overtime_earnings
 employee_ssnit_deduction = gross_salary * 0.055  # Standard 5.5% National Pension cut
+# 1. New required input boxes for allowances and bonuses    
+allowances = st.sidebar.number_input("Total Allowances (GHS)", min_value=0.0, step=50.0)
+bonus_overtime = st.sidebar.number_input("Bonus / Overtime (GHS)", min_value=0.0, step=50.0)
+
+# 2. Automated SSNIT Deduction (5.5% of Gross Income under Ghanaian Law)
+ssnit_contribution = gross_salary * 0.055
+st.sidebar.write(f"**SSNIT Deduction (5.5%):** GHS {ssnit_contribution:.2f}")
+
+# 3. Calculate true Chargeable Income before running the tax bands loop
+chargeable_income = (gross_salary + allowances + bonus_overtime) - ssnit_contribution
+if chargeable_income < 0:
+    chargeable_income = 0.0
+
 taxable_income_placeholder = total_gross_earnings - employee_ssnit_deduction
 mock_paye_tax = taxable_income_placeholder * 0.15  # Interim calculation for visual demo
 total_deductions_sum = employee_ssnit_deduction + mock_paye_tax + other_deductions
