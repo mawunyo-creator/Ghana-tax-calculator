@@ -1,57 +1,28 @@
 {
-    "project_metadata": {
-        "country": "Ghana",
-        "authority": "Ghana Revenue Authority (GRA)",
-        "effective_year": 2026,
-        "currency": "GHS",
-        "last_updated": "2026-05-15"
+  "tax_bands": [
+    {
+      "limit": 490.00,
+      "rate": 0.00
     },
-    "statutory_rates": {
-        "employee_ssnit_rate": 0.055,
-        "non_resident_flat_tax_rate": 0.25
+    {
+      "limit": 110.00,
+      "rate": 0.05
     },
-    "monthly_tax_bands": [
-        {
-            "band_step": "First",
-            "band_limit": 490.00,
-            "tax_rate": 0.00,
-            "is_overflow": false
-        },
-        {
-            "band_step": "Next",
-            "band_limit": 110.00,
-            "tax_rate": 0.05,
-            "is_overflow": false
-        },
-        {
-            "band_step": "Next",
-            "band_limit": 130.00,
-            "tax_rate": 0.10,
-            "is_overflow": false
-        },
-        {
-            "band_step": "Next",
-            "band_limit": 3166.67,
-            "tax_rate": 0.175,
-            "is_overflow": false
-        },
-        {
-            "band_step": "Next",
-            "band_limit": 16000.00,
-            "tax_rate": 0.25,
-            "is_overflow": false
-        },
-        {
-            "band_step": "Next",
-            "band_limit": 30520.00,
-            "tax_rate": 0.30,
-            "is_overflow": false
-        },
-        {
-            "band_step": "Exceeding",
-            "band_limit": null,
-            "tax_rate": 0.35,
-            "is_overflow": true
-        }
-    ]
+    {
+      "limit": 130.00,
+      "rate": 0.10
+    },
+    {
+      "limit": 3166.67,
+      "rate": 0.175
+    },
+    {
+      "limit": 1104.33,
+      "rate": 0.25
+    },
+    {
+      "limit": "inf",
+      "rate": 0.30
+    }
+  ]
 }
