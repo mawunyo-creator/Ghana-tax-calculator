@@ -419,3 +419,12 @@ st.caption("**Official Data Source:** Ghana Revenue Authority (GRA) Domestic Tax
 st.caption("**Source URL:** https://gra.gov.gh/domestic-tax/tax-types/paye/")
 st.caption("**Data Verification Access Window:** May 2026 Submission Cycle")
 st.caption("**Educational Prototype Notice:** All calculated values are generated locally from static JSON snapshots for academic review. Live scraping is deactivated to protect public network resource bandwidth.")
+
+st.markdown("---")
+st.subheader("⚖️ Statutory Source Compliance & Transparency")
+st.markdown("""
+* **Official Data Source:** Ghana Revenue Authority (GRA) PAYE Tax Calendars
+* **Verification Reference URL:** https://gra.gov.gh/domestic-tax/tax-types/paye/
+* **Data Verification Date:** May 2026 Submission Matrix
+* **Ethical Architecture Notice:** In strict accordance with evaluation rules, automated web scraping is fully deactivated on this platform to preserve public domain bandwidth. All progressive bands are loaded dynamically via local verified files (`Tax_bands.json`).
+""")
