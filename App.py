@@ -412,3 +412,10 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+st.markdown("---")
+st.caption("### ⚖️ Legal & Data Transparency Records")
+st.caption("**Official Data Source:** Ghana Revenue Authority (GRA) Domestic Tax Guidelines")
+st.caption("**Source URL:** https://gra.gov.gh/domestic-tax/tax-types/paye/")
+st.caption("**Data Verification Access Window:** May 2026 Submission Cycle")
+st.caption("**Educational Prototype Notice:** All calculated values are generated locally from static JSON snapshots for academic review. Live scraping is deactivated to protect public network resource bandwidth.")
