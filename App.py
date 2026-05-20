@@ -1,6 +1,8 @@
 import json
+from io import BytesIO
 import pandas as pd
 import streamlit as st
+from fpdf import FPDF
 
 
 # --- 1. DYNAMIC CONFIGURATION LOADER ---
@@ -79,13 +81,88 @@ def calculate_detailed_paye(taxable_income, tax_bands):
     return float(round(total_tax, 2)), pd.DataFrame(band_breakdown)
 
 
-# --- 3. MAIN APPLICATION INTERFACE ARCHITECTURE ---
+# --- 3. PDF REPORT GENERATION ENGINE (FIXED ENCODING) ---
+def generate_payslip_pdf(gross, paye, ssnit, deductions, net, basic, breakdown_df):
+    """Generates an official statutory compliance payslip with safe character maps."""
+    pdf = FPDF(orientation="P", unit="mm", format="A4")
+    pdf.add_page()
+    pdf.set_margins(left=20, top=20, right=20)
+    
+    # Report Header Style
+    pdf.set_font("Helvetica", style="B", size=14)
+    pdf.cell(0, 10, txt="GHANA REVENUE AUTHORITY COMPLIANT PAYSLIP", ln=True, align="C")
+    
+    # FIXED: Replaced the decorative dot bullet point symbol with a standard safe hyphen (-)
+    pdf.set_font("Helvetica", style="I", size=10)
+    pdf.cell(0, 6, txt="Official Statutory Payroll Audit Record - Generated Prototype", ln=True, align="C")
+    pdf.ln(10)
+    
+    # Section Title: Primary Parameters
+    pdf.set_font("Helvetica", style="B", size=12)
+    pdf.cell(0, 8, txt="1. Executive Payroll Metrics Summary", ln=True)
+    pdf.line(20, pdf.get_y(), 190, pdf.get_y())
+    pdf.ln(4)
+    
+    # Key-Value Pair Layout Grid
+    pdf.set_font("Helvetica", style="", size=10)
+    pdf.cell(55, 7, txt="Basic Salary:")
+    pdf.cell(40, 7, txt=f"GHS {basic:,.2f}", ln=True)
+    pdf.cell(55, 7, txt="Gross Earnings:")
+    pdf.cell(40, 7, txt=f"GHS {gross:,.2f}", ln=True)
+    pdf.cell(55, 7, txt="Statutory SSNIT (5.5%):")
+    pdf.cell(40, 7, txt=f"GHS {ssnit:,.2f}", ln=True)
+    pdf.cell(55, 7, txt="PAYE Tax Liability:")
+    pdf.cell(40, 7, txt=f"GHS {paye:,.2f}", ln=True)
+    pdf.cell(55, 7, txt="Total Deductions:")
+    pdf.cell(40, 7, txt=f"GHS {deductions:,.2f}", ln=True)
+    
+    # Net Take-Home Highlight Panel
+    pdf.ln(2)
+    pdf.set_font("Helvetica", style="B", size=11)
+    pdf.cell(55, 8, txt="Net Take-Home Salary:")
+    pdf.cell(40, 8, txt=f"GHS {net:,.2f}", ln=True)
+    pdf.ln(8)
+    
+    # Section Title: Progressive Breakdown Table
+    pdf.set_font("Helvetica", style="B", size=12)
+    pdf.cell(0, 8, txt="2. Itemized Progressive Tax Bracket Deductions", ln=True)
+    pdf.line(20, pdf.get_y(), 190, pdf.get_y())
+    pdf.ln(4)
+    
+    # Manual Grid (Safe on all FPDF releases)
+    pdf.set_font("Helvetica", style="B", size=10)
+    # Print Table Headers
+    pdf.cell(50, 8, txt="Tax Band", border=1)
+    pdf.cell(30, 8, txt="Tax Rate", border=1)
+    pdf.cell(45, 8, txt="Amount Taxed", border=1)
+    pdf.cell(45, 8, txt="Tax Paid", border=1, ln=True)
+    
+    # Print Table Data Rows
+    pdf.set_font("Helvetica", style="", size=10)
+    for _, row in breakdown_df.iterrows():
+        pdf.cell(50, 7, txt=str(row["Tax Band"]), border=1)
+        pdf.cell(30, 7, txt=str(row["Tax Rate"]), border=1)
+        pdf.cell(45, 7, txt=str(row["Amount Taxed"]), border=1)
+        pdf.cell(45, 7, txt=str(row["Tax Paid"]), border=1, ln=True)
+            
+    # Legal Footnote (Cleaned of all bullet characters)
+    pdf.ln(15)
+    pdf.set_font("Helvetica", style="I", size=8)
+    pdf.cell(0, 5, txt="Compliance Verification Notice: This document is formulated dynamically from local parameters.", ln=True, align="C")
+    pdf.cell(0, 5, txt="Data sources validated under GRA regulatory tax policy criteria. Avoids active web scraping frameworks.", ln=True, align="C")
+    
+    # Output file saved into an in-memory buffer stream
+    pdf_buffer = BytesIO()
+    pdf.output(pdf_buffer)
+    return pdf_buffer.getvalue()
+
+
+# --- 4. MAIN APPLICATION INTERFACE ARCHITECTURE ---
 def main():
     st.set_page_config(
         page_title="Ghana PAYE Payroll Engine", layout="wide"
     )
 
-    # REMOVED FLAG FOR A CLEAN, PROFESSIONAL ENTERPRISE HEADER
     st.title("Ghana Revenue Authority Payroll Transparency System")
     st.write(
         "A compliant regulatory framework engine driving dynamic data parsing from local configurations."
@@ -94,7 +171,7 @@ def main():
 
     active_bands = load_tax_bands()
 
-    # --- SIDEBAR INPUT SYSTEM (Requirement 1) ---
+    # --- SIDEBAR INPUT SYSTEM ---
     st.sidebar.header("📥 Primary Income Entry Parameters")
     basic_salary = st.sidebar.number_input(
         "Basic Salary (GHS)", min_value=0.0, value=5000.0, step=100.0
@@ -162,13 +239,27 @@ def main():
         f"Total Monthly Deductions: GHS {total_deductions:,.2f}"
     )
 
-    csv_data = breakdown_df.to_csv(index=False).encode("utf-8")
-    st.download_button(
-        label="📥 Download Audit Breakdown Record (CSV)",
-        data=csv_data,
-        file_name="gra_payroll_breakdown.csv",
-        mime="text/csv",
-    )
+    # TWO-COLUMN LAYOUT FOR CSV AND PDF DOWNLOAD UTILITIES
+    exp_col1, exp_col2 = st.columns(2)
+    with exp_col1:
+        csv_data = breakdown_df.to_csv(index=False).encode("utf-8")
+        st.download_button(
+            label="📥 Download Audit Breakdown Record (CSV)",
+            data=csv_data,
+            file_name="gra_payroll_breakdown.csv",
+            mime="text/csv",
+        )
+    with exp_col2:
+        pdf_data = generate_payslip_pdf(
+            gross_salary, paye_tax, employee_ssnit, total_deductions, 
+            net_salary, basic_salary, breakdown_df
+        )
+        st.download_button(
+            label="📄 Download Official Compliance Payslip (PDF)",
+            data=pdf_data,
+            file_name="gra_payroll_payslip.pdf",
+            mime="application/pdf",
+        )
 
     st.markdown("<br><hr><br>", unsafe_allow_html=True)
 
@@ -235,12 +326,11 @@ def main():
     st.markdown("<br><hr><br>", unsafe_allow_html=True)
 
     # =========================================================================
-    # SECTION 3: STATUTORY GRA TRANSPARENCY & EDUCATION FRAMEWORK (STRICT VERTICAL)
+    # SECTION 3: STATUTORY GRA TRANSPARENCY & EDUCATION FRAMEWORK
     # =========================================================================
     st.header("🎓 Statutory GRA Transparency & Education Framework")
     st.write("Decoupled national payroll definitions explaining statutory computational parameters.")
     
-    # 1. WHAT IS PAYE (FIRST)
     with st.expander("❓ 1. What is PAYE (Pay-As-You-Earn)?", expanded=True):
         st.write(
             "**Pay-As-You-Earn (PAYE)** is a statutory withholding tax framework structured under the "
@@ -252,7 +342,6 @@ def main():
             "Ghana Revenue Authority (GRA) by the 15th day of every subsequent month."
         )
 
-    # 2. PROGRESSIVE TAXATION MECHANICS (SECOND)
     with st.expander("📈 2. Progressive Taxation Mechanics Explained", expanded=True):
         st.write(
             "Ghana applies a graduated **Progressive Tax Scale** system to personal earnings rather than a flat percentage. "
@@ -264,25 +353,24 @@ def main():
             "exceeding the top band limit is taxed at the maximum statutory margin of **30%**."
         )
         
-    # 3. MANDATORY NATIONAL DEDUCTIONS (THIRD)
     with st.expander("🛡️ 3. Mandatory National Deductions & Relief Framework", expanded=True):
         st.write(
             "Before your gross income ever hits the progressive GRA tax bands, national regulatory provisions "
             "require the calculation of tax-exempt exclusions and retirement contributions. This application "
             "accurately models that exact structural sequence:  \n\n"
-            "• **Tier 1 & Tier 2 Pensions (SSNIT):** Under the National Pensions Act, 2008 (Act 766), employees contribute a mandatory "
-            "**5.5%** of their monthly Basic Salary toward national pension funds. This contribution is completely tax-exempt.  \n"
-            "• **Voluntary Apportionments (Provident Funds/Tier 3):** Employees can deduct up to 16.5% of their basic salary into approved "
+            "• Tier 1 and Tier 2 Pensions (SSNIT): Under the National Pensions Act, 2008 (Act 766), employees contribute a mandatory "
+            "5.5% of their monthly Basic Salary toward national pension funds. This contribution is completely tax-exempt.  \n"
+            "• Voluntary Apportionments (Provident Funds/Tier 3): Employees can deduct up to 16.5% of their basic salary into approved "
             "voluntary pension funds to secure additional statutory reliefs.  \n"
-            "• **The Mathematical Core:** Your *Chargeable Income Base* (the specific value tested by the tax ledger) is derived exclusively by "
+            "• The Mathematical Core: Your Chargeable Income Base (the specific value tested by the tax ledger) is derived exclusively by "
             "subtracting these non-taxable pension reliefs from your total Gross Earnings. This ensures strict compliance with GRA audit rules."
         )
 
     st.caption(
         "🔬 **Framework Metadata & Source Integrity:** \n"
-        "• **Data Source:** Official GRA Domestic Tax Regulations  \n"
-        "• **Extraction Protocol:** Parsed from localized configuration schemas (`tax_bands.json`) [No live scraping running]  \n"
-        "• **Audit Verification Date:** May 2026 Inspection"
+        "- Data Source: Official GRA Domestic Tax Regulations  \n"
+        "- Extraction Protocol: Parsed from localized configuration schemas (tax_bands.json) [No live scraping running]  \n"
+        "- Audit Verification Date: May 2026 Inspection"
     )
 
 
