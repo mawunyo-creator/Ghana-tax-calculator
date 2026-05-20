@@ -1,28 +1,13 @@
 {
+  "country": "Ghana",
+  "currency": "GHS",
+  "effective_year": 2026,
   "tax_bands": [
-    {
-      "limit": 490.00,
-      "rate": 0.00
-    },
-    {
-      "limit": 110.00,
-      "rate": 0.05
-    },
-    {
-      "limit": 130.00,
-      "rate": 0.10
-    },
-    {
-      "limit": 3166.67,
-      "rate": 0.175
-    },
-    {
-      "limit": 1104.33,
-      "rate": 0.25
-    },
-    {
-      "limit": "inf",
-      "rate": 0.30
-    }
+    {"limit": 490.00, "rate": 0.00},
+    {"limit": 110.00, "rate": 0.05},
+    {"limit": 130.00, "rate": 0.10},
+    {"limit": 3166.67, "rate": 0.175},
+    {"limit": 1104.33, "rate": 0.25},
+    {"limit": "inf", "rate": 0.30}
   ]
 }
