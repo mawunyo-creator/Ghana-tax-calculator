@@ -1,13 +1,49 @@
 {
-  "country": "Ghana",
   "currency": "GHS",
-  "effective_year": 2026,
-  "tax_bands": [
-    {"limit": 490.00, "rate": 0.00},
-    {"limit": 110.00, "rate": 0.05},
-    {"limit": 130.00, "rate": 0.10},
-    {"limit": 3166.67, "rate": 0.175},
-    {"limit": 1104.33, "rate": 0.25},
-    {"limit": "inf", "rate": 0.30}
+  "country": "Ghana",
+  "fiscal_year": "2026",
+  "official_source": "Ghana Revenue Authority (GRA) via Income Tax Amendment Act",
+  "verification_date": "May 2026",
+  "ssnit_rates": {
+    "employee_percentage": 5.5,
+    "employer_percentage": 13.0,
+    "maximum_monthly_insurable_earnings": 61000.0
+  },
+  "monthly_tax_bands": [
+    {
+      "band_name": "First Band",
+      "limit": 490.00,
+      "rate": 0.00
+    },
+    {
+      "band_name": "Next Band",
+      "limit": 110.00,
+      "rate": 0.05
+    },
+    {
+      "band_name": "Next Band",
+      "limit": 130.00,
+      "rate": 0.10
+    },
+    {
+      "band_name": "Next Band",
+      "limit": 3166.67,
+      "rate": 0.175
+    },
+    {
+      "band_name": "Next Band",
+      "limit": 16000.00,
+      "rate": 0.25
+    },
+    {
+      "band_name": "Next Band",
+      "limit": 30520.00,
+      "rate": 0.30
+    },
+    {
+      "band_name": "Over Band",
+      "limit": null,
+      "rate": 0.35
+    }
   ]
 }
