@@ -1,21 +1,37 @@
-# Ghana Revenue Authority (GRA) Compliant Payroll Transparency System
+## 🚀 Production Operation & Deployment Guide
 
-An advanced, data-driven statutory accounting and comparative payroll projection engine built using Python and Streamlit. This application serves as an educational prototype designed to model progressive national income tax withholding algorithms under the **Income Tax Act, 2015 (Act 896)** and pension rules under the **National Pensions Act, 2008 (Act 766)**.
+Follow these steps to operate the calculator engine locally or push it to a live cloud server.
 
-## 📊 Technical Project Features
-- **Dynamic Configuration Layer**: Fully decoupled data structure parsing progressive tax boundaries from local JSON schemas instead of hardcoding variables.
-- **Sequential Deduction Math Engine**: Accurate calculation of non-taxable pension reliefs (Tier 1/2/3) prior to computing graduated tax steps.
-- **Dual-Scenario Modeling Portal**: Parallel sandbox modeling enabling real-time structural adjustments and side-by-side delta tracking against current metrics.
-- **Audit-Ready Visual Formatting**: Full-width vertical metrics presentation and high-contrast styled data matrices preventing string truncations.
-- **Enterprise Report Generation**: On-demand file streaming for raw data logs (CSV) and officially mapped statutory compliance payslips (PDF).
+### 1. Running the Application Locally
+After installing your dependencies from the `requirements.txt` file, boot up the local web engine:
+```bash
+streamlit run App.py
+```
+* **Note**: A local browser window should pop up automatically at `http://localhost:8501`. If it does not, copy the link outputted in your terminal.
 
-## ⚖️ Ethical & Legal Compliance Boundaries
-- **Zero-Scraping Architecture**: To comply strictly with project constraints and protect public resource bandwidth, this application completely avoids live scraping frameworks on the GRA domain. All data arrays are validated manually and stored locally in `Tax_bands.json`.
-- **Data Privacy Protocols**: The runtime system treats user entries purely as transient state data. No identity metrics or personal financial parameters are written to permanent external databases.
+---
 
-## 🛠️ Local Environment Initialization Instructions
+### 2. How to Operate the Application Interface
 
-1. **Clone the Repository Branch**:
-   ```bash
-   git clone [https://github.com/your-username/Ghana-tax-calculator.git](https://github.com/your-username/Ghana-tax-calculator.git)
-   cd Ghana-tax-calculator
+#### 📊 Salary Tax Calculator Tab
+1. **Input Parameters**: Use the sidebar or input fields to specify a worker's **Monthly Basic Salary**, **Allowances**, **Bonus**, and **Overtime**.
+2. **Review Deductions**: Watch the **Payroll Transparency Dashboard** update live. It automatically isolates the 5.5% SSNIT worker deduction before running the multi-bracket tax algorithm.
+3. **Audit the Breakdown Table**: Verify compliance using the required **Tax Band | Tax Rate | Amount Taxed | Tax Paid** matrix display.
+4. **Export Audits**: Click the **📥 Download Payroll Breakdown Report (.CSV)** button at the bottom of the page to export local records instantly.
+
+#### 📈 Multi-Salary Comparison Tool Tab
+1. Input two unique base compensation figures under Profile Option A and Option B.
+2. Review the structural visual bar chart comparing respective effective tax burdens side-by-side.
+
+---
+
+### 3. Cloud Deployment Instructions (Streamlit Community Cloud)
+To fulfill the public deployment requirement, follow these continuous integration steps:
+
+1. Visit [share.streamlit.io](https://streamlit.io) and log in using your GitHub Account.
+2. Click **New App** in the upper-right corner of your workspace dashboard.
+3. Configure the deployment properties field precisely as follows:
+   * **Repository**: `mawunyo-creator/Ghana-tax-calculators`
+   * **Branch**: `main` (Ensure you have merged your `development` branch into `main` before this step)
+   * **Main file path**: `App.py`
+4. Click **Deploy!** Your production build will be live globally on a public web URL within 2 minutes.
