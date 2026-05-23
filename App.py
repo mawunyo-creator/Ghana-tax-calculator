@@ -252,6 +252,27 @@ st.header("5. 📥 Get Your Documents")
 st.markdown("Download verified financial outputs for compliance records or internal accounting audits")
 
 csv_buffer=io.StringIO()
+
+# --- INSERTING THE NEW TEXT LOGIC DIRECTLY HERE ---
+col1 = dash_df.columns[0]
+col2 = dash_df.columns[1] if len(dash_df.columns) > 1 else "Value"
+# Create the official header rows for the very top
+header_rows = [
+    {col1: "--- OFFICIAL SALARY PAYSLIP REPORT ---", col2: ""},
+    {col1: "Republic of Ghana Payroll Engine", col2: ""},
+    {col1: "Generated under FY2026 Guidelines", col2: ""},
+    {col1: "", col2: ""}  # Empty spacer line before data starts
+]
+footer_rows = [
+    {col1: "", col2: ""}, 
+    {col1: "", col2: ""}, 
+    {col1: "Generated via Ghana PAYE Tax Engine.", col2: ""},
+    {col1: "Thank you for using!", col2: ""}
+]
+import pandas as pd
+dash_df = pd.concat([pd.DataFrame(header_rows),dash_df,pd.DataFrame(footer_rows)], ignore_index=True)
+# --------------------------------------------------
+
 dash_df.to_csv(csv_buffer, index=False)
 csv_bytes = csv_buffer.getvalue().encode('utf-8')
 
