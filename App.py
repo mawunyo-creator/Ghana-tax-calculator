@@ -225,7 +225,7 @@ st.dataframe(
 
 # --- SECTION 4: TAILORED FINANCIAL OPTIMIZER NOTICE ---
 st.markdown("---")
-st.header("4. 💡 Tailored Personal Financial Advice")
+st.header("4. 💡 Tailored Personal Financial Adnvice")
 
 if payroll["effective_tax_rate"] > 20.0:
     st.warning(
@@ -249,9 +249,9 @@ else:
 # --- SECTION 5: PAYROLL SLIP EXPORT (CSV & PDF FORMATS) ---
 st.markdown("---")
 st.header("5. 📥 Get Your Documents")
-st.markdown("Download verified financial outputs for compliance records or internal accounting audits:")
+st.markdown("Download verified financial outputs for compliance records or internal accounting audits")
 
-csv_buffer = io.StringIO()
+csv_buffer=io.StringIO()
 dash_df.to_csv(csv_buffer, index=False)
 csv_bytes = csv_buffer.getvalue().encode('utf-8')
 
@@ -265,7 +265,8 @@ with exp_col1:
     )
 with exp_col2:
     pdf_mock_content = (
-        "--- OFFICIAL ACCRA COMPLIANCE REPORT ---\n"
+        "--- OFFICIAL SALARY PAYSLIP REPORT ---\n"
+        "Republic of Ghana Payroll Engine\n"
         f"Generated under FY2026 Guidelines\n\n"
         f"Gross Salary: {format_currency(payroll['total_gross'])}\n"
         f"Employee SSNIT: {format_currency(payroll['employee_ssnit'])}\n"
@@ -273,12 +274,16 @@ with exp_col2:
         f"Total PAYE Tax: {format_currency(payroll['total_paye'])}\n"
         f"Net Take-Home Pay: {format_currency(payroll['net_salary'])}\n"
         f"Effective Tax Rate: {payroll['effective_tax_rate']:.2f}%\n"
+        "\n\n\n"
+                            "Generated via Ghana PAYE Tax Engine.\n" 
+                                    "Thank you for using!\n"
     )
+    pdf_bytes=pdf_mock_content.encode("utf-8")
     st.download_button(
         label="Download Professional Pay Slip Document (PDF Format)",
-        data=pdf_mock_content.encode('utf-8'),
-        file_name="ghana_payslip_official.pdf",
-        mime="application/pdf",
+        data=pdf_bytes,
+        file_name="ghana_payslip_official.txt",
+        mime="text/plain",
         help="Compiles audit-ready payslip detailing progressive traces and tax-exempt status certifications."
     )
 
