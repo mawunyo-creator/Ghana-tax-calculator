@@ -61,4 +61,13 @@ To fulfill the public deployment requirement, follow these continuous integratio
 
 Click the link below to watch the full system simulation and calculation walkthrough:
 
-👉 [Watch the Project 1 Demo Video](https://drive.google.com/file/d/1OJwUsp7wiD_Txc5ZBPvUE9WWEoxeXAHA/view?usp=sharing)
+👉 [Watch the Project 1 Demo Video](https://drive.google.com/file/d/1OJwUsp7wiD_Txc5ZBPvUE9WWEoxeXAHA/view?usp=sharing
+
+)---
+
+## ⚖️ Source Transparency & Free-Tier Documentation
+
+* [cite_start]**Official Data Source:** Ghana Revenue Authority (GRA) PAYE Official Tax Structure[cite: 343].
+* [cite_start]**Data Access Date:** Accessed May 2026 (Built into localized static JSON matrix to prevent prohibited live web scraping)[cite: 345, 346].
+* [cite_start]**Hosting Platform Free-Tier Limits:** Deployed via Streamlit Community Cloud Free Tier[cite: 300]. [cite_start]Application resources are limited to standard container memory limits; containers may enter a temporary sleep state during prolonged inactivity[cite: 302].
+* [cite_start]**Data Persistence Disclaimer:** All calculated values are processed locally in volatile memory; permanent database persistence is not required for this local prototype[cite: 306].
