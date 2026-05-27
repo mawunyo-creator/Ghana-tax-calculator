@@ -61,4 +61,4 @@ To fulfill the public deployment requirement, follow these continuous integratio
 
 Click the link below to watch the full system simulation and calculation walkthrough:
 
-👉 [Watch the Project 1 Demo Video](./demo_walkthrough.mp4)
+👉 [Watch the Project 1 Demo Video](https://drive.google.com/file/d/1OJwUsp7wiD_Txc5ZBPvUE9WWEoxeXAHA/view?usp=sharing)
