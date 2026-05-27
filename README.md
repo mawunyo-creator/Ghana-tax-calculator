@@ -35,3 +35,30 @@ To fulfill the public deployment requirement, follow these continuous integratio
    * **Branch**: `main` (Ensure you have merged your `development` branch into `main` before this step)
    * **Main file path**: `App.py`
 4. Click **Deploy!** Your production build will be live globally on a public web URL within 2 minutes.
+![Main User Dashboard View](screenshots/primary_metrics.png)
+## 💾 Application Previews
+
+### Progressive Tax Band Calculations
+![GRA Progressive Tax Table](screenshots/tax_table.png)
+
+### Responsive Analytics Visualizations
+![Dynamic Plotly Charts](screenshots/chart_view.png)
+### 2. GRA Progressive Tax Table Allocation
+![GRA Progressive Tax Table](screenshots/tax_table.png)
+### 3. Tailored Financial Advice & Document Export Capabilities
+![Financial Advice and Payroll Export Subsystems](screenshots/export_features.png)
+## 💾 Complete Application Previews
+
+### 1. Main Payroll Metrics Dashboard
+![Main User Dashboard View](screenshots/primary_metrics.png)
+
+### 2. GRA Progressive Tax Table Allocation Tiers
+![GRA Progressive Tax Table](screenshots/tax_table.png)
+
+### 3. Automated Advice Columns & Data Export Utilities
+![Financial Advice and Payroll Export Subsystems](screenshots/export_features.png)
+## 📺 Project Walkthrough Demonstration
+
+Click the link below to watch the full system simulation and calculation walkthrough:
+
+👉 [Watch the Project 1 Demo Video](./demo_walkthrough.mp4)
