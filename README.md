@@ -1,73 +1,60 @@
-## 🚀 Production Operation & Deployment Guide
+GHANA PAYROLL AND TAX CALCULATOR
 
-Follow these steps to operate the calculator engine locally or push it to a live cloud server.
+This is a web app built with Python and Streamlit to help workers in Ghana calculate their exact salary deductions and take-home pay. It allows you to look at two different salary choices side by side to see which one leaves you with more cash.
 
-### 1. Running the Application Locally
-After installing your dependencies from the `requirements.txt` file, boot up the local web engine:
-```bash
-streamlit run App.py
-```
-* **Note**: A local browser window should pop up automatically at `http://localhost:8501`. If it does not, copy the link outputted in your terminal.
 
----
+WHAT THIS APP DOES
 
-### 2. How to Operate the Application Interface
+It lets you type in your basic monthly salary, your allowances, bonuses, and overtime pay. 
 
-#### 📊 Salary Tax Calculator Tab
-1. **Input Parameters**: Use the sidebar or input fields to specify a worker's **Monthly Basic Salary**, **Allowances**, **Bonus**, and **Overtime**.
-2. **Review Deductions**: Watch the **Payroll Transparency Dashboard** update live. It automatically isolates the 5.5% SSNIT worker deduction before running the multi-bracket tax algorithm.
-3. **Audit the Breakdown Table**: Verify compliance using the required **Tax Band | Tax Rate | Amount Taxed | Tax Paid** matrix display.
-4. **Export Audits**: Click the **📥 Download Payroll Breakdown Report (.CSV)** button at the bottom of the page to export local records instantly.
+It calculates your automatic five point five percent SSNIT contribution.
 
-#### 📈 Multi-Salary Comparison Tool Tab
-1. Input two unique base compensation figures under Profile Option A and Option B.
-2. Review the structural visual bar chart comparing respective effective tax burdens side-by-side.
+It checks your voluntary Tier three pension savings and applies tax breaks up to the legal limit of sixteen point five percent.
 
----
+It breaks down your income tax automatically using the official steps set by the Ghana Revenue Authority.
 
-### 3. Cloud Deployment Instructions (Streamlit Community Cloud)
-To fulfill the public deployment requirement, follow these continuous integration steps:
+It shows your final cash take-home pay after subtracting your savings, taxes, and short term Treasury Bill investment targets.
 
-1. Visit [share.streamlit.io](https://streamlit.io) and log in using your GitHub Account.
-2. Click **New App** in the upper-right corner of your workspace dashboard.
-3. Configure the deployment properties field precisely as follows:
-   * **Repository**: `mawunyo-creator/Ghana-tax-calculators`
-   * **Branch**: `main` (Ensure you have merged your `development` branch into `main` before this step)
-   * **Main file path**: `App.py`
-4. Click **Deploy!** Your production build will be live globally on a public web URL within 2 minutes.
-![Main User Dashboard View](screenshots/primary_metrics.png)
-## 💾 Application Previews
+It lets you click a button to download the entire summary as a clean CSV file or a PDF document directly to your computer.
 
-### Progressive Tax Band Calculations
-![GRA Progressive Tax Table](screenshots/tax_table.png)
 
-### Responsive Analytics Visualizations
-![Dynamic Plotly Charts](screenshots/chart_view.png)
-### 2. GRA Progressive Tax Table Allocation
-![GRA Progressive Tax Table](screenshots/tax_table.png)
-### 3. Tailored Financial Advice & Document Export Capabilities
-![Financial Advice and Payroll Export Subsystems](screenshots/export_features.png)
-## 💾 Complete Application Previews
+HOW IT CALCULATES YOUR TAX
 
-### 1. Main Payroll Metrics Dashboard
-![Main User Dashboard View](screenshots/primary_metrics.png)
+The app uses the official progressive tax blocks. Your income is split into separate sections and taxed at different rates:
 
-### 2. GRA Progressive Tax Table Allocation Tiers
-![GRA Progressive Tax Table](screenshots/tax_table.png)
+First 490.00 GHS is tax free
+Next 110.00 GHS is taxed at 5 percent
+Next 130.00 GHS is taxed at 10 percent
+Next 3166.67 GHS is taxed at 17.5 percent
+Next 11000.00 GHS is taxed at 25 percent
+Any remaining amount above that is taxed at 30 percent
 
-### 3. Automated Advice Columns & Data Export Utilities
-![Financial Advice and Payroll Export Subsystems](screenshots/export_features.png)
-## 📺 Project Walkthrough Demonstration
 
-Click the link below to watch the full system simulation and calculation walkthrough:
+HOW TO RUN THIS APP LOCALLY
 
-👉 [Watch the Project 1 Demo Video](https://drive.google.com/file/d/1OJwUsp7wiD_Txc5ZBPvUE9WWEoxeXAHA/view?usp=sharing
+Follow these simple steps on your computer terminal to run the app:
 
-)---
+1. Download or clone this project folder to your computer.
 
-## ⚖️ Source Transparency & Free-Tier Documentation
+2. Open your terminal inside the folder and create a virtual environment by typing:
+python -m venv venv
 
-* [cite_start]**Official Data Source:** Ghana Revenue Authority (GRA) PAYE Official Tax Structure[cite: 343].
-* [cite_start]**Data Access Date:** Accessed May 2026 (Built into localized static JSON matrix to prevent prohibited live web scraping)[cite: 345, 346].
-* [cite_start]**Hosting Platform Free-Tier Limits:** Deployed via Streamlit Community Cloud Free Tier[cite: 300]. [cite_start]Application resources are limited to standard container memory limits; containers may enter a temporary sleep state during prolonged inactivity[cite: 302].
-* [cite_start]**Data Persistence Disclaimer:** All calculated values are processed locally in volatile memory; permanent database persistence is not required for this local prototype[cite: 306].
+3. Activate the virtual environment:
+On Windows PowerShell type: .\venv\Scripts\Activate.ps1
+On Windows Command Prompt type: .\venv\Scripts\activate.bat
+
+4. Install the two needed packages by typing:
+pip install streamlit fpdf
+
+5. Start the web server app by typing:
+streamlit run app.py
+
+
+WHERE THE DATA COMES FROM
+
+All tax percentages, pension caps, and progressive income blocks used in this application are copied exactly from the public operational schedules on the official Ghana Revenue Authority domestic tax portal.
+
+
+IMPORTANT WARNING
+
+This web application was made strictly as a school engineering project prototype. It is meant for educational simulation and learning purposes only. It does not count as formal legal, financial, or professional tax accounting advice.
