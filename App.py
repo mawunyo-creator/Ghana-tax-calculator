@@ -206,7 +206,7 @@ def generate_primary_pdf_report(primary_details, primary_final_net_take_home, pr
     primary_pdf.cell(200, 10, txt=f"Short Term Treasury Bill Target: GHS {primary_tbill:.2f}", ln=1)
     primary_pdf.cell(200, 10, txt=f"Final Net Take Home: GHS {primary_final_net_take_home:.2f}", ln=1)
     
-    return primary_pdf.output(dest="S").encode("latin-1")
+    return primary_pdf.output()
 
 def generate_alternative_pdf_report(alternative_details, alternative_final_net_take_home, alternative_tbill):
     alternative_pdf = FPDF()
@@ -224,7 +224,9 @@ def generate_alternative_pdf_report(alternative_details, alternative_final_net_t
     alternative_pdf.cell(200, 10, txt=f"Short Term Treasury Bill Target: GHS {alternative_tbill:.2f}", ln=1)
     alternative_pdf.cell(200, 10, txt=f"Final Net Take Home: GHS {alternative_final_net_take_home:.2f}", ln=1)
     
-    return alternative_pdf.output(dest="S").encode("latin-1")
+    return alternative_pdf.output()
+    
+
 
 st.set_page_config(layout="wide")
 
