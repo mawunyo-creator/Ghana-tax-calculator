@@ -1,7 +1,9 @@
 import streamlit as st
+import pandas as pd
 import io
 from fpdf import FPDF
 
+# --- CORE PAYROLL & TAX CALCULATION ENGINE ---
 def compute_ghana_payroll_taxes(basic_salary, allowances, bonus, overtime, additional_deductions, tier3_rate):
     """
     Computes statutory payroll deductions using standard 2026 GRA tax bands
@@ -77,50 +79,58 @@ def compute_ghana_payroll_taxes(basic_salary, allowances, bonus, overtime, addit
         "breakdown": band_breakdown
     }
 
-def generate_csv_report(label, details, final_net, tbill):
-    output = io.StringIO()
-    output.write(f"Payroll Report for {label}\n")
-    output.write(f"Total Gross Earnings (GHS),{details['gross']:.2f}\n")
-    output.write(f"Mandatory SSNIT Contribution (GHS),{details['ssnit']:.2f}\n")
-    output.write(f"Pension Plan Savings (GHS),{details['tier3']:.2f}\n")
-    output.write(f"Taxable Chargeable Income (GHS),{details['taxable']:.2f}\n")
-    output.write(f"Income Tax Paid to GRA (GHS),{details['tax']:.2f}\n")
-    output.write(f"Total Deductions (GHS),{details['total_deductions']:.2f}\n")
-    output.write(f"Effective Tax Rate (%),{details['effective_tax_rate']:.2f}\n")
-    output.write(f"Treasury Bill Target (GHS),{tbill:.2f}\n")
-    output.write(f"Final Net Take Home (GHS),{final_net:.2f}\n")
-    return output.getvalue()
+
+# --- EXPORT REPORT ENGINES ---
+def generate_csv_report(details):
+    """
+    Safely converts the tax band calculation list into a Pandas DataFrame 
+    before converting it to a downloadable CSV byte string.
+    """
+    df_csv = pd.DataFrame(details["breakdown"])
+    return df_csv.to_csv(index=False).encode("utf-8")
+
 
 def generate_pdf_report(label, details, final_net, tbill):
+    """
+    Generates structured PDF outputs. Fixes the 'ln=3' layout error 
+    by enforcing strict positional flowing (ln=1).
+    """
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=12)
     
-    # Removed named "txt=" parameters to fix Streamlit deployment crash
+    # Title Sections
     pdf.cell(200, 10, f"Official Payroll Computation Report - {label}", ln=1, align="C")
-    pdf.cell(200, 10, "-------------------------------------------------------------------------", ln=2, align="C")
+    pdf.cell(200, 10, "-------------------------------------------------------------------------", ln=1, align="C")
     
-    pdf.cell(200, 10, f"Total Gross Earnings: GHS {details['gross']:.2f}", ln=3)
-    pdf.cell(200, 10, f"Mandatory SSNIT Contribution (5.5%): GHS {details['ssnit']:.2f}", ln=4)
-    pdf.cell(200, 10, f"Pension Plan Savings: GHS {details['tier3']:.2f}", ln=5)
-    pdf.cell(200, 10, f"Taxable Chargeable Income: GHS {details['taxable']:.2f}", ln=6)
-    pdf.cell(200, 10, f"Income Tax Paid to GRA (PAYE): GHS {details['tax']:.2f}", ln=7)
-    pdf.cell(200, 10, f"Total Deductions Applied: GHS {details['total_deductions']:.2f}", ln=8)
-    pdf.cell(200, 10, f"Effective Income Tax Rate: {details['effective_tax_rate']:.2f}%", ln=9)
-    pdf.cell(200, 10, f"Short Term Treasury Bill Target: GHS {tbill:.2f}", ln=10)
-    pdf.cell(200, 10, f"Final Net Take Home: GHS {final_net:.2f}", ln=11)
+    # Core Summary Metrics (Fixed line flow enums)
+    pdf.cell(200, 10, f"Total Gross Earnings: GHS {details['gross']:.2f}", ln=1)
+    pdf.cell(200, 10, f"Mandatory SSNIT Contribution (5.5%): GHS {details['ssnit']:.2f}", ln=1)
+    pdf.cell(200, 10, f"Pension Plan Savings: GHS {details['tier3']:.2f}", ln=1)
+    pdf.cell(200, 10, f"Taxable Chargeable Income: GHS {details['taxable']:.2f}", ln=1)
+    pdf.cell(200, 10, f"Income Tax Paid to GRA (PAYE): GHS {details['tax']:.2f}", ln=1)
+    pdf.cell(200, 10, f"Total Deductions Applied: GHS {details['total_deductions']:.2f}", ln=1)
+    pdf.cell(200, 10, f"Effective Income Tax Rate: {details['effective_tax_rate']:.2f}%", ln=1)
+    pdf.cell(200, 10, f"Short Term Treasury Bill Target: GHS {tbill:.2f}", ln=1)
+    pdf.cell(200, 10, f"Final Net Take Home: GHS {final_net:.2f}", ln=1)
     
-    # Convert report to bytes via string decoding for clean cloud rendering
-    return bytes(pdf.output(dest="S").encode("latin-1"))
+    # Standardize output binary block tracking
+    pdf_output = pdf.output(dest="S")
+    if isinstance(pdf_output, str):
+        return pdf_output.encode("latin-1")
+    return pdf_output
 
+
+# --- APPLICATION UI RENDERING CONFIGURATION ---
 st.set_page_config(layout="wide")
 
 st.markdown("<h2 style='text-align: center;'>Ghana Payroll and Tax Calculator</h2>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center;'>Find out your correct basic salary deductions and your final cash out.</p>", unsafe_allow_html=True)
 
-# Main UI Interface Form Router
+
+# Dynamic Component Builder for UI Layouts
 def render_payroll_section(key_prefix, layout_title, default_basic):
-    st.markdown(f"<h3 style='text-align: center;'>{layout_title}</h3>", unsafe_allow_html=True)
+    st.markdown(f"<h3 style='text-align: center; margin-top: 20px;'>{layout_title}</h3>", unsafe_allow_html=True)
     
     _, center_content, _ = st.columns([0.5, 5, 0.5])
     
@@ -144,12 +154,14 @@ def render_payroll_section(key_prefix, layout_title, default_basic):
     results = compute_ghana_payroll_taxes(basic, allowances, bonus, overtime, additional_deductions, tier3_rate)
     final_net_take_home = max(0.0, results["net_salary"] - tbill_investment)
 
+    # Graphical Interface Section
     st.markdown(f"<h4 style='text-align: center; margin-top: 35px;'>{layout_title} Graphical Representation</h4>", unsafe_allow_html=True)
     _, chart_center, _ = st.columns([1.2, 2.6, 1.2])
     with chart_center:
         chart_data = {"Amount (GHS)": [results["gross"], results["ssnit"], results["tax"], final_net_take_home]}
         st.bar_chart(data=chart_data, y="Amount (GHS)", height=280)
 
+    # Core Metrics Block
     st.markdown(f"<h4 style='text-align: center; margin-top: 35px;'>{layout_title} Deductions and Net Pay Details</h4>", unsafe_allow_html=True)
     _, metric_center, _ = st.columns([0.5, 5, 0.5])
     with metric_center:
@@ -160,6 +172,7 @@ def render_payroll_section(key_prefix, layout_title, default_basic):
         m4.metric("Final Net Take Home", f"GHS {final_net_take_home:.2f}")
         st.markdown(f"<p style='text-align: center; margin-top: 25px; margin-bottom: 25px; font-size: 1.25em;'>Effective Tax Rate: {results['effective_tax_rate']:.2f}%</p>", unsafe_allow_html=True)
 
+    # Dynamic Financial Text Summaries
     st.markdown(f"<h4 style='text-align: center; margin-top: 40px; margin-bottom: 20px;'>{layout_title} Expenses and Estimates</h4>", unsafe_allow_html=True)
     _, pocket_center, _ = st.columns([0.5, 5, 0.5])
     with pocket_center:
@@ -175,19 +188,22 @@ def render_payroll_section(key_prefix, layout_title, default_basic):
             st.markdown(f"<p style='line-height: 2.0; margin-bottom: 10px;'>Pension Plan Savings: GHS {results['tier3']:.2f}</p>", unsafe_allow_html=True)
             st.markdown(f"<p style='line-height: 2.0;'>Treasury Bill Investment Amount: GHS {tbill_investment:.2f}</p>", unsafe_allow_html=True)
             
+        # File Download Controller Panels
         export_col_1, _, export_col_2, _ = st.columns([1.5, 1.0, 1.5, 1.0])
         with export_col_1:
-            csv_data = generate_csv_report(layout_title, results, final_net_take_home, tbill_investment)
-            st.download_button(label="Download CSV Report", data=csv_data, file_name=f"{key_prefix}_payroll_report.csv", mime="text/csv", use_container_width=True)
+            csv_data = generate_csv_report(results)
+            st.download_button(label="Download CSV Report", data=csv_data, file_name=f"{key_prefix}_salary_payroll_report.csv", mime="text/csv", use_container_width=True)
         with export_col_2:
             pdf_data = generate_pdf_report(layout_title, results, final_net_take_home, tbill_investment)
-            st.download_button(label="Download PDF Report", data=pdf_data, file_name=f"{key_prefix}_payroll_report.pdf", mime="application/pdf", use_container_width=True)
+            st.download_button(label="Download PDF Report", data=pdf_data, file_name=f"{key_prefix}_salary_payroll_report.pdf", mime="application/pdf", use_container_width=True)
 
-# Render Application Sections
+
+# Render Dual Layout Framework
 render_payroll_section("primary", "Primary Salary Details", 3000.0)
 render_payroll_section("alternative", "Alternative Salary Details", 4000.0)
 
-# --- Educational and Source Attribution Section ---
+
+# --- TAX EDUCATION REFERENCE DISPLAY ---
 st.markdown("---")
 st.markdown("<h3 style='text-align: center;'>Official Ghana Income Tax Rates</h3>", unsafe_allow_html=True)
 
@@ -216,6 +232,8 @@ with edu_center:
     st.markdown("<h5 style='text-align: center; margin-top: 15px;'>Where This Information Comes From</h5>", unsafe_allow_html=True)
     st.write("All tax bands and tax percentages used in this calculation app are taken directly from the official website and public guidelines of the Ghana Revenue Authority. The calculation rules match the current systems used across the country.")
 
+
+# --- STATUTORY ATTRIBUTION & LEGAL PROTOTYPE DISCLAIMERS ---
 st.markdown(
     """
     <div style='text-align: center; color: #666666; font-size: 0.85em; margin-top: 30px; padding: 20px;'>
@@ -223,7 +241,7 @@ st.markdown(
         <p>The progressive personal income tax bands, Pay-As-You-Earn (PAYE) calculation variables, and 
         Tier 1/2/3 statutory pension deduction percentages utilized within this application engine are derived from 
         the official statutory schedules published by the Ghana Revenue Authority (GRA).</p>
-        <p>Official Schedule Source: <a href="https://gra.gov.gh/domestic-tax/tax-types/paye/" target="_blank">GRA PAYE Portal</a>.</p>
+        <p>Data Access & Verification Reference Date: May 2026. Official Schedule Source: <a href="https://gra.gov.gh/domestic-tax/tax-types/paye/" target="_blank">GRA PAYE Portal</a>.</p>
         <hr style='border: 0; border-top: 1px solid #e0e0e0; width: 50%; margin: 15px auto;'>
         <p>Educational Prototype Disclaimer: This web application is developed strictly as an academic 
         engineering project prototype. It does not constitute formal financial, legal, or professional tax accounting advice. 
