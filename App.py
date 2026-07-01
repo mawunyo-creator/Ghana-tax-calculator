@@ -196,17 +196,19 @@ def generate_primary_pdf_report(primary_details, primary_final_net_take_home, pr
     primary_pdf.set_font("Arial", size=12)
     
     primary_pdf.cell(200, 10, txt="Official Payroll Computation Report - Primary Salary Layout", ln=1, align="C")
-    primary_pdf.cell(200, 10, txt=f"Total Gross Earnings: GHS {primary_details['primary_gross']:.2f}", ln=1)
-    primary_pdf.cell(200, 10, txt=f"Mandatory SSNIT Contribution (5.5%): GHS {primary_details['primary_ssnit']:.2f}", ln=1)
-    primary_pdf.cell(200, 10, txt=f"Pension Plan Savings: GHS {primary_details['primary_tier3']:.2f}", ln=1)
-    primary_pdf.cell(200, 10, txt=f"Taxable Chargeable Income: GHS {primary_details['primary_taxable']:.2f}", ln=1)
-    primary_pdf.cell(200, 10, txt=f"Income Tax Paid to GRA (PAYE): GHS {primary_details['primary_tax']:.2f}", ln=1)
-    primary_pdf.cell(200, 10, txt=f"Total Deductions Applied: GHS {primary_details['primary_total_deductions']:.2f}", ln=1)
-    primary_pdf.cell(200, 10, txt=f"Effective Income Tax Rate: {primary_details['primary_effective_tax_rate']:.2f}%", ln=1)
-    primary_pdf.cell(200, 10, txt=f"Short Term Treasury Bill Target: GHS {primary_tbill:.2f}", ln=1)
-    primary_pdf.cell(200, 10, txt=f"Final Net Take Home: GHS {primary_final_net_take_home:.2f}", ln=1)
-
-    return primary_pdf.output()
+    primary_pdf.cell(200, 10, txt="-------------------------------------------------------------------------", ln=2, align="C")
+    
+    primary_pdf.cell(200, 10, txt=f"Total Gross Earnings: GHS {primary_details['primary_gross']:.2f}", ln=3)
+    primary_pdf.cell(200, 10, txt=f"Mandatory SSNIT Contribution (5.5%): GHS {primary_details['primary_ssnit']:.2f}", ln=4)
+    primary_pdf.cell(200, 10, txt=f"Pension Plan Savings: GHS {primary_details['primary_tier3']:.2f}", ln=5)
+    primary_pdf.cell(200, 10, txt=f"Taxable Chargeable Income: GHS {primary_details['primary_taxable']:.2f}", ln=6)
+    primary_pdf.cell(200, 10, txt=f"Income Tax Paid to GRA (PAYE): GHS {primary_details['primary_tax']:.2f}", ln=7)
+    primary_pdf.cell(200, 10, txt=f"Total Deductions Applied: GHS {primary_details['primary_total_deductions']:.2f}", ln=8)
+    primary_pdf.cell(200, 10, txt=f"Effective Income Tax Rate: {primary_details['primary_effective_tax_rate']:.2f}%", ln=9)
+    primary_pdf.cell(200, 10, txt=f"Short Term Treasury Bill Target: GHS {primary_tbill:.2f}", ln=10)
+    primary_pdf.cell(200, 10, txt=f"Final Net Take Home: GHS {primary_final_net_take_home:.2f}", ln=11)
+    
+    return primary_pdf.output(dest="S").encode("latin-1")
 
 def generate_alternative_pdf_report(alternative_details, alternative_final_net_take_home, alternative_tbill):
     alternative_pdf = FPDF()
@@ -214,15 +216,17 @@ def generate_alternative_pdf_report(alternative_details, alternative_final_net_t
     alternative_pdf.set_font("Arial", size=12)
     
     alternative_pdf.cell(200, 10, txt="Official Payroll Computation Report - Alternative Salary Layout", ln=1, align="C")
-    alternative_pdf.cell(200, 10, txt=f"Total Gross Earnings: GHS {alternative_details['alternative_gross']:.2f}", ln=1)
-    alternative_pdf.cell(200, 10, txt=f"Mandatory SSNIT Contribution (5.5%): GHS {alternative_details['alternative_ssnit']:.2f}", ln=1)
-    alternative_pdf.cell(200, 10, txt=f"Pension Plan Savings: GHS {alternative_details['alternative_tier3']:.2f}", ln=1)
-    alternative_pdf.cell(200, 10, txt=f"Taxable Chargeable Income: GHS {alternative_details['alternative_taxable']:.2f}", ln=1)
-    alternative_pdf.cell(200, 10, txt=f"Income Tax Paid to GRA (PAYE): GHS {alternative_details['alternative_tax']:.2f}", ln=1)
-    alternative_pdf.cell(200, 10, txt=f"Total Deductions Applied: GHS {alternative_details['alternative_total_deductions']:.2f}", ln=1)
-    alternative_pdf.cell(200, 10, txt=f"Effective Income Tax Rate: {alternative_details['alternative_effective_tax_rate']:.2f}%", ln=1)
-    alternative_pdf.cell(200, 10, txt=f"Short Term Treasury Bill Target: GHS {alternative_tbill:.2f}", ln=1)
-    alternative_pdf.cell(200, 10, txt=f"Final Net Take Home: GHS {alternative_final_net_take_home:.2f}", ln=1)
+    alternative_pdf.cell(200, 10, txt="-------------------------------------------------------------------------", ln=2, align="C")
+    
+    alternative_pdf.cell(200, 10, txt=f"Total Gross Earnings: GHS {alternative_details['alternative_gross']:.2f}", ln=3)
+    alternative_pdf.cell(200, 10, txt=f"Mandatory SSNIT Contribution (5.5%): GHS {alternative_details['alternative_ssnit']:.2f}", ln=4)
+    alternative_pdf.cell(200, 10, txt=f"Pension Plan Savings: GHS {alternative_details['alternative_tier3']:.2f}", ln=5)
+    alternative_pdf.cell(200, 10, txt=f"Taxable Chargeable Income: GHS {alternative_details['alternative_taxable']:.2f}", ln=6)
+    alternative_pdf.cell(200, 10, txt=f"Income Tax Paid to GRA (PAYE): GHS {alternative_details['alternative_tax']:.2f}", ln=7)
+    alternative_pdf.cell(200, 10, txt=f"Total Deductions Applied: GHS {alternative_details['alternative_total_deductions']:.2f}", ln=8)
+    alternative_pdf.cell(200, 10, txt=f"Effective Income Tax Rate: {alternative_details['alternative_effective_tax_rate']:.2f}%", ln=9)
+    alternative_pdf.cell(200, 10, txt=f"Short Term Treasury Bill Target: GHS {alternative_tbill:.2f}", ln=10)
+    alternative_pdf.cell(200, 10, txt=f"Final Net Take Home: GHS {alternative_final_net_take_home:.2f}", ln=11)
     
     return alternative_pdf.output(dest="S").encode("latin-1")
 
@@ -433,20 +437,33 @@ with edu_center:
     
     st.markdown("<h5 style='text-align: center; margin-top: 15px;'>Where This Information Comes From</h5>", unsafe_allow_html=True)
     st.write("All tax bands and tax percentages used in this calculation app are taken directly from the official website and public guidelines of the Ghana Revenue Authority. The calculation rules match the current systems used across the country.")
+    st.markdown("---")
+st.markdown("<h3 style='text-align: center;'>Official Ghana Income Tax Rates</h3>", unsafe_allow_html=True)
 
-st.markdown(
-    """
-    <div style='text-align: center; color: #666666; font-size: 0.85em; margin-top: 30px; padding: 20px;'>
-        <p>Regulatory & Legal Source Attribution Statement:</p>
-        <p>The progressive personal income tax bands, Pay-As-You-Earn (PAYE) calculation variables, and 
-        Tier 1/2/3 statutory pension deduction percentages utilized within this application engine are derived from 
-        the official statutory schedules published by the Ghana Revenue Authority (GRA).</p>
-        <p>Data Access & Verification Reference Date: May 2026. Official Schedule Source: <a href="https://gra.gov.gh/domestic-tax/tax-types/paye/" target="_blank">GRA PAYE Portal</a>.</p>
-        <hr style='border: 0; border-top: 1px solid #e0e0e0; width: 50%; margin: 15px auto;'>
-        <p>Educational Prototype Disclaimer: This web application is developed strictly as an academic 
-        engineering project prototype. It does not constitute formal financial, legal, or professional tax accounting advice. 
-        All calculations are for educational transparency and demonstration purposes only.</p>
-    </div>
-    """, 
-    unsafe_allow_html=True
-)
+table_left, table_center, table_right = st.columns([0.5, 5, 0.5])
+with table_center:
+    official_tax_bands_data = [
+        {"Tax Band Position": "First Band", "Chargeable Income Amount (GHS)": "490.00", "Tax Rate Percentage": "0% / Free"},
+        {"Tax Band Position": "Next Band", "Chargeable Income Amount (GHS)": "110.00", "Tax Rate Percentage": "5%"},
+        {"Tax Band Position": "Next Band", "Chargeable Income Amount (GHS)": "130.00", "Tax Rate Percentage": "10%"},
+        {"Tax Band Position": "Next Band", "Chargeable Income Amount (GHS)": "3,166.67", "Tax Rate Percentage": "17.5%"},
+        {"Tax Band Position": "Next Band", "Chargeable Income Amount (GHS)": "11,000.00", "Tax Rate Percentage": "25%"},
+        {"Tax Band Position": "Exceeding Balance", "Chargeable Income Amount (GHS)": "Above 15,396.67", "Tax Rate Percentage": "30%"}
+    ]
+    st.table(official_tax_bands_data)
+
+st.markdown("<h3 style='text-align: center;'>Tax Information & Education</h3>", unsafe_allow_html=True)
+
+edu_left, edu_center, edu_right = st.columns([0.5, 5, 0.5])
+with edu_center:
+    st.markdown("<h5 style='text-align: center;'>Understanding Pay As You Earn (PAYE)</h5>", unsafe_allow_html=True)
+    st.write("PAYE stands for Pay As You Earn. It is the system used by the Ghana Revenue Authority to calculate income tax on what you earn from your job. This is a progressive tax system, which means your tax rate goes up as you earn more money. Your income is broken down into separate blocks or bands, and each block is taxed at its own matching rate. As your earnings move up into higher bands, only the money inside those new bands faces the higher tax percentages.")
+    
+    st.markdown("<h5 style='text-align: center; margin-top: 15px;'>How Pension Deductions Help You Save on Tax</h5>", unsafe_allow_html=True)
+    st.write("Under Ghanaian labor laws, your employer takes a mandatory 5.5 percent out of your basic salary and sends it straight to SSNIT to fund your main retirement pension. If you choose to put money into an approved voluntary Tier 3 pension plan, you get special tax breaks. You are allowed to set aside up to 16.5 percent of your basic salary completely tax-free. This money is taken out first, lowering the amount of income that the GRA can actually touch with tax percentages.")
+    
+    st.markdown("<h5 style='text-align: center; margin-top: 15px;'>Where This Information Comes From</h5>", unsafe_allow_html=True)
+    st.write("All tax bands and tax percentages used in this calculation app are taken directly from the official website and public guidelines of the Ghana Revenue Authority. The calculation rules match the current systems used across the country.")
+
+    # Native Streamlit caption replaces the raw CSS block to fulfill project prototype rules cleanly
+    st.caption("Legal Disclaimer: This application serves strictly as an educational prototype for academic evaluation. Computations are built for demonstration purposes and do not constitute formal legal, financial, or regulatory tax advice.")
