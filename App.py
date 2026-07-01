@@ -465,5 +465,4 @@ with edu_center:
     st.markdown("<h5 style='text-align: center; margin-top: 15px;'>Where This Information Comes From</h5>", unsafe_allow_html=True)
     st.write("All tax bands and tax percentages used in this calculation app are taken directly from the official website and public guidelines of the Ghana Revenue Authority. The calculation rules match the current systems used across the country.")
 
-    # Native Streamlit caption replaces the raw CSS block to fulfill project prototype rules cleanly
     st.caption("Legal Disclaimer: This application serves strictly as an educational prototype for academic evaluation. Computations are built for demonstration purposes and do not constitute formal legal, financial, or regulatory tax advice.")
