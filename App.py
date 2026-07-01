@@ -164,30 +164,30 @@ def calculate_alternative_payroll_details(alternative_basic_salary, alternative_
 
 def generate_primary_csv_report(primary_details, primary_final_net_take_home, primary_tbill):
     primary_output = io.StringIO()
-    primary_output.write("Payroll Report for Primary Salary Layout\n")
-    primary_output.write(f"Total Gross Earnings (GHS),{primary_details['primary_gross']:.2f}\n")
-    primary_output.write(f"Mandatory SSNIT Contribution (GHS),{primary_details['primary_ssnit']:.2f}\n")
-    primary_output.write(f"Pension Plan Savings (GHS),{primary_details['primary_tier3']:.2f}\n")
-    primary_output.write(f"Taxable Chargeable Income (GHS),{primary_details['primary_taxable']:.2f}\n")
-    primary_output.write(f"Income Tax Paid to GRA (GHS),{primary_details['primary_tax']:.2f}\n")
-    primary_output.write(f"Total Deductions (GHS),{primary_details['primary_total_deductions']:.2f}\n")
-    primary_output.write(f"Effective Tax Rate (%),{primary_details['primary_effective_tax_rate']:.2f}\n")
-    primary_output.write(f"Treasury Bill Investment Target (GHS),{primary_tbill:.2f}\n")
-    primary_output.write(f"Final Net Take Home (GHS),{primary_final_net_take_home:.2f}\n")
+    primary_output.write("Payroll Report for Primary Salary")
+    primary_output.write(f"Total Gross Earnings (GHS),{primary_details['primary_gross']:.2f}")
+    primary_output.write(f"Mandatory SSNIT Contribution (GHS),{primary_details['primary_ssnit']:.2f}")
+    primary_output.write(f"Pension Plan Savings (GHS),{primary_details['primary_tier3']:.2f}")
+    primary_output.write(f"Taxable Chargeable Income (GHS),{primary_details['primary_taxable']:.2f}")
+    primary_output.write(f"Income Tax Paid to GRA (GHS),{primary_details['primary_tax']:.2f}")
+    primary_output.write(f"Total Deductions (GHS),{primary_details['primary_total_deductions']:.2f}")
+    primary_output.write(f"Effective Tax Rate (%),{primary_details['primary_effective_tax_rate']:.2f}")
+    primary_output.write(f"Treasury Bill Investment Target (GHS),{primary_tbill:.2f}")
+    primary_output.write(f"Final Net Take Home (GHS),{primary_final_net_take_home:.2f}")
     return primary_output.getvalue()
 
 def generate_alternative_csv_report(alternative_details, alternative_final_net_take_home, alternative_tbill):
     alternative_output = io.StringIO()
-    alternative_output.write("Payroll Report for Alternative Salary Layout\n")
-    alternative_output.write(f"Total Gross Earnings (GHS),{alternative_details['alternative_gross']:.2f}\n")
+    alternative_output.write("Payroll Report for Alternative Salary\n")
+    alternative_output.write(f"Total Gross Earnings (GHS),{alternative_details['alternative_gross']:.2f}")
     alternative_output.write(f"Mandatory SSNIT Contribution (GHS),{alternative_details['alternative_ssnit']:.2f}\n")
-    alternative_output.write(f"Pension Plan Savings (GHS),{alternative_details['alternative_tier3']:.2f}\n")
+    alternative_output.write(f"Pension Plan Savings (GHS),{alternative_details['alternative_tier3']:.2f}")
     alternative_output.write(f"Taxable Chargeable Income (GHS),{alternative_details['alternative_taxable']:.2f}\n")
-    alternative_output.write(f"Income Tax Paid to GRA (GHS),{alternative_details['alternative_tax']:.2f}\n")
+    alternative_output.write(f"Income Tax Paid to GRA (GHS),{alternative_details['alternative_tax']:.2f}")
     alternative_output.write(f"Total Deductions (GHS),{alternative_details['alternative_total_deductions']:.2f}\n")
     alternative_output.write(f"Effective Tax Rate (%),{alternative_details['alternative_effective_tax_rate']:.2f}\n")
-    alternative_output.write(f"Treasury Bill Investment Target (GHS),{alternative_tbill:.2f}\n")
-    alternative_output.write(f"Final Net Take Home (GHS),{alternative_final_net_take_home:.2f}\n")
+    alternative_output.write(f"Treasury Bill Investment Target (GHS),{alternative_tbill:.2f}")
+    alternative_output.write(f"Final Net Take Home (GHS),{alternative_final_net_take_home:.2f}")
     return alternative_output.getvalue()
 
 def generate_primary_pdf_report(primary_details, primary_final_net_take_home, primary_tbill):
@@ -195,7 +195,7 @@ def generate_primary_pdf_report(primary_details, primary_final_net_take_home, pr
     primary_pdf.add_page()
     primary_pdf.set_font("Arial", size=12)
     
-    primary_pdf.cell(200, 10, "Official Payroll Computation Report - Primary Salary Layout", 0, 1, "C")
+    primary_pdf.cell(200, 10, "Official Payroll Report - Primary Salary", 0, 1, "C")
     primary_pdf.cell(200, 10, f"Total Gross Earnings: GHS {primary_details['primary_gross']:.2f}", 0, 1)
     primary_pdf.cell(200, 10, f"Mandatory SSNIT Contribution (5.5%): GHS {primary_details['primary_ssnit']:.2f}", 0, 1)
     primary_pdf.cell(200, 10, f"Pension Plan Savings: GHS {primary_details['primary_tier3']:.2f}", 0, 1)
@@ -203,7 +203,7 @@ def generate_primary_pdf_report(primary_details, primary_final_net_take_home, pr
     primary_pdf.cell(200, 10, f"Income Tax Paid to GRA (PAYE): GHS {primary_details['primary_tax']:.2f}", 0, 1)
     primary_pdf.cell(200, 10, f"Total Deductions Applied: GHS {primary_details['primary_total_deductions']:.2f}", 0, 1)
     primary_pdf.cell(200, 10, f"Effective Income Tax Rate: {primary_details['primary_effective_tax_rate']:.2f}%", 0, 1)
-    primary_pdf.cell(200, 10, f"Short Term Treasury Bill Target: GHS {primary_tbill:.2f}", 0, 1)
+    primary_pdf.cell(200, 10, f"Treasury Bill Target: GHS {primary_tbill:.2f}", 0, 1)
     primary_pdf.cell(200, 10, f"Final Net Take Home: GHS {primary_final_net_take_home:.2f}", 0, 1)
     
     primary_pdf_output = primary_pdf.output(dest="S")
@@ -216,7 +216,7 @@ def generate_alternative_pdf_report(alternative_details, alternative_final_net_t
     alternative_pdf.add_page()
     alternative_pdf.set_font("Arial", size=12)
     
-    alternative_pdf.cell(200, 10, "Official Payroll Computation Report - Alternative Salary Layout", 0, 1, "C")
+    alternative_pdf.cell(200, 10, "Official Payroll Report - Alternative Salary", 0, 1, "C")
     alternative_pdf.cell(200, 10, f"Total Gross Earnings: GHS {alternative_details['alternative_gross']:.2f}", 0, 1)
     alternative_pdf.cell(200, 10, f"Mandatory SSNIT Contribution (5.5%): GHS {alternative_details['alternative_ssnit']:.2f}", 0, 1)
     alternative_pdf.cell(200, 10, f"Pension Plan Savings: GHS {alternative_details['alternative_tier3']:.2f}", 0, 1)
@@ -224,7 +224,7 @@ def generate_alternative_pdf_report(alternative_details, alternative_final_net_t
     alternative_pdf.cell(200, 10, f"Income Tax Paid to GRA (PAYE): GHS {alternative_details['alternative_tax']:.2f}", 0, 1)
     alternative_pdf.cell(200, 10, f"Total Deductions Applied: GHS {alternative_details['alternative_total_deductions']:.2f}", 0, 1)
     alternative_pdf.cell(200, 10, f"Effective Income Tax Rate: {alternative_details['alternative_effective_tax_rate']:.2f}%", 0, 1)
-    alternative_pdf.cell(200, 10, f"Short Term Treasury Bill Target: GHS {alternative_tbill:.2f}", 0, 1)
+    alternative_pdf.cell(200, 10, f"Treasury Bill Target: GHS {alternative_tbill:.2f}", 0, 1)
     alternative_pdf.cell(200, 10, f"Final Net Take Home: GHS {alternative_final_net_take_home:.2f}", 0, 1)
     
     alternative_pdf_output = alternative_pdf.output(dest="S")
@@ -234,10 +234,9 @@ def generate_alternative_pdf_report(alternative_details, alternative_final_net_t
 
 st.set_page_config(layout="wide")
 
-st.markdown("<h2 style='text-align: center;'>Ghana Payroll and Tax Calculator</h2>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center;'>Find out your correct basic salary deductions and your final cash out.</p>", unsafe_allow_html=True)
+st.subheader("Payroll Report & Tax Calculator")
 
-st.markdown("<h3 style='text-align: center;'>Primary Salary Details</h3>", unsafe_allow_html=True)
+st.subheading("Primary Salary Details")
 
 primary_left_spacer, primary_center_content, primary_right_spacer = st.columns([0.5, 5, 0.5])
 
@@ -253,7 +252,7 @@ with primary_center_content:
         primary_overtime = st.number_input("Input your overtime earnings here", min_value=0.0, value=0.0, key="primary_o1")
         primary_additional_deductions = st.number_input("Input any additional optional deductions here", min_value=0.0, value=0.0, key="primary_d1")
         
-    st.markdown("<h4 style='text-align: center; margin-top: 30px;'>Investments</h4>", unsafe_allow_html=True)
+    st.subheader("Investments")
     
     primary_investment_column_left, primary_investment_column_right = st.columns(2)
     
@@ -267,10 +266,9 @@ primary_payroll_results = calculate_primary_payroll_details(primary_basic_salary
 
 primary_final_net_take_home = primary_payroll_results["primary_net_salary"] - primary_tbill_investment
 if primary_final_net_take_home < 0:
-    primary_final_net_take_home = 0.0
-
-st.markdown("<h4 style='text-align: center; margin-top: 35px;'>Primary Salary Graphical Representation</h4>", unsafe_allow_html=True)
+    primary_final_net_take_home =0.0
 primary_chart_left, primary_chart_center, primary_chart_right = st.columns([1.2, 2.6, 1.2])
+st.subheader("Primary Salary Graphical Representation")
 
 with primary_chart_center:
     primary_vertical_chart_data = {
@@ -283,7 +281,7 @@ with primary_chart_center:
     }
     st.bar_chart(data=primary_vertical_chart_data, y="Amount (GHS)", height=280)
 
-st.markdown("<h4 style='text-align: center; margin-top: 35px;'>Primary Salary Deductions and Net Pay Details</h4>", unsafe_allow_html=True)
+st.subheader("Primary Deductions and Net Pay Details")
 primary_metric_left, primary_metric_center, primary_metric_right = st.columns([0.5, 5, 0.5])
 
 with primary_metric_center:
@@ -297,24 +295,26 @@ with primary_metric_center:
     with primary_metric_column_four:
         st.metric("Final Net Take Home", f"GHS {primary_final_net_take_home:.2f}")
         
-    st.markdown(f"<p style='text-align: center; margin-top: 25px; margin-bottom: 25px; font-size: 1.25em;'>Effective Tax Rate: {primary_payroll_results['primary_effective_tax_rate']:.2f}%</p>", unsafe_allow_html=True)
-
-st.markdown("<h4 style='text-align: center; margin-top: 40px; margin-bottom: 20px;'>Primary Salary Expenses and Estimates</h4>", unsafe_allow_html=True)
+    
+st.subheader("Primary Salary Breakdown Summary")
 primary_pocket_left, primary_pocket_center, primary_pocket_right = st.columns([0.5, 5, 0.5])
 
 with primary_pocket_center:
     primary_pocket_left_pane, primary_space_buffer, primary_pocket_right_pane = st.columns([2.5, 0.5, 2.5])
     with primary_pocket_left_pane:
-        st.markdown("<h5 style='text-align: left; margin-bottom: 15px;'>Take-Home Pay Summary</h5>", unsafe_allow_html=True)
-        st.markdown(f"<p style='line-height: 2.0; margin-bottom: 10px;'>Final Net Take Home: GHS {primary_final_net_take_home:.2f}</p>", unsafe_allow_html=True)
+        
+        st.markdown("Take-Home Pay Summary")
+        
+        st.write(f"Final Net Take-Home: GHS {primary_payroll_results['primary_final_net_take_home']:.2f}")
         if primary_payroll_results["primary_gross"] > 0:
             primary_retention_percentage = (primary_final_net_take_home / primary_payroll_results["primary_gross"]) * 100
             st.markdown(f"<p style='line-height: 2.0;'>You get to keep {primary_retention_percentage:.1f}% of everything you earned.</p>", unsafe_allow_html=True)
-            
-    with primary_pocket_right_pane:
-        st.markdown("<h5 style='text-align: left; margin-bottom: 15px;'>Your Total Savings Breakdown</h5>", unsafe_allow_html=True)
-        st.markdown(f"<p style='line-height: 2.0; margin-bottom: 10px;'>Pension Plan Savings: GHS {primary_payroll_results['primary_tier3']:.2f}</p>", unsafe_allow_html=True)
-        st.markdown(f"<p style='line-height: 2.0;'>Treasury Bill Investment Amount: GHS {primary_tbill_investment:.2f}</p>", unsafe_allow_html=True)
+            with primary_pocket_right_pane:
+                st.markdown(" Investment & Summary Results")
+    
+    st.write(f"You get to keep {primary_retention_percentage:.2f}% of your gross.")
+    st.write(f"Pension Contribution: GHS {primary_payroll_results['primary_ssnit']:.2f}")
+    st.write(f"Treasury Bill Investment: GHS {primary_tbill_investment:.2f}")
         
     primary_export_col_1, primary_spacer_btn_1, primary_export_col_2, primary_spacer_btn_2 = st.columns([1.5, 1.0, 1.5, 1.0])
     with primary_export_col_1:
@@ -325,7 +325,7 @@ with primary_pocket_center:
         st.download_button(label="Download PDF Report", data=primary_pdf_data, file_name="primary_salary_payroll_report.pdf", mime="application/pdf", use_container_width=True)
 
 
-st.markdown("<h3 style='text-align: center;'>Alternative Salary Details</h3>", unsafe_allow_html=True)
+st.subheader("Alternative Salary Details")
 
 alternative_left_spacer, alternative_center_content, alternative_right_spacer = st.columns([0.5, 5, 0.5])
 
@@ -371,7 +371,7 @@ with alternative_chart_center:
     }
     st.bar_chart(data=alternative_vertical_chart_data, y="Amount (GHS)", height=280)
 
-st.markdown("<h4 style='text-align: center; margin-top: 35px;'>Alternative Salary Deductions and Net Pay Details</h4>", unsafe_allow_html=True)
+st.subheader("Alternative Salary Deductions and Net Pay Details")
 alternative_metric_left, alternative_metric_center, alternative_metric_right = st.columns([0.5, 5, 0.5])
 
 with alternative_metric_center:
@@ -385,35 +385,40 @@ with alternative_metric_center:
     with alternative_metric_column_four:
         st.metric("Final Net Take Home", f"GHS {alternative_final_net_take_home:.2f}")
 
-    st.markdown(f"<p style='text-align: center; margin-top: 25px; margin-bottom: 25px; font-size: 1.25em;'>Effective Tax Rate: {alternative_payroll_results['alternative_effective_tax_rate']:.2f}%</p>", unsafe_allow_html=True)
+    st.write(f"Effective Tax Rate: {alternative_payroll_results['alternative_effective_tax_rate']:.2f}%")
 
-st.markdown("<h4 style='text-align: center; margin-top: 40px; margin-bottom: 20px;'>Alternative Salary Expenses and Estimates</h4>", unsafe_allow_html=True)
+st.subheader("Alternative Salary Expenses and Estimates")
 alternative_pocket_left, alternative_pocket_center, alternative_pocket_right = st.columns([0.5, 5, 0.5])
 
 with alternative_pocket_center:
     alternative_pocket_left_pane, alternative_space_buffer_2, alternative_pocket_right_pane = st.columns([2.5, 0.5, 2.5])
     with alternative_pocket_left_pane:
-        st.markdown("<h5 style='text-align: left; margin-bottom: 15px;'>Take-Home Pay Summary</h5>", unsafe_allow_html=True)
-        st.markdown(f"<p style='line-height: 2.0; margin-bottom: 10px;'>Final Net Take Home: GHS {alternative_final_net_take_home:.2f}</p>", unsafe_allow_html=True)
-        if alternative_payroll_results["alternative_gross"] > 0:
+
+        st.markdown("Alternative Take-Home Pay Summary")
+
+
+st.write(f"Final Net Take-Home: GHS {alternative_payroll_results['alternative_final_net_take_home']:.2f}")
+if alternative_payroll_results["alternative_gross"] > 0:
             alternative_retention_percentage = (alternative_final_net_take_home / alternative_payroll_results["alternative_gross"]) * 100
             st.markdown(f"<p style='line-height: 2.0;'>You get to keep {alternative_retention_percentage:.1f}% of everything you earned.</p>", unsafe_allow_html=True)
             
-    with alternative_pocket_right_pane:
-        st.markdown("<h5 style='text-align: left; margin-bottom: 15px;'>Your Total Savings Breakdown</h5>", unsafe_allow_html=True)
-        st.markdown(f"<p style='line-height: 2.0; margin-bottom: 10px;'>Pension Plan Savings: GHS {alternative_payroll_results['alternative_tier3']:.2f}</p>", unsafe_allow_html=True)
-        st.markdown(f"<p style='line-height: 2.0;'>Treasury Bill Investment Amount: GHS {alternative_tbill_investment:.2f}</p>", unsafe_allow_html=True)
+with alternative_pocket_right_pane:
+        st.markdown("Your Total Savings Breakdown")
+        st.write(f"Pension Plan Savings: GHS {alternative_payroll_results['alternative_ssnit']:.2f}")
+        st.write(f"Treasury Bill Investment Amount: GHS {alternative_tbill_investment:.2f}")
+        st.write(f"You get to keep {alternative_retention_percentage:.2f}% of your gross.")
+
         
-    alternative_export_col_3, alternative_spacer_btn_3, alternative_export_col_4, alternative_spacer_btn_4 = st.columns([1.5, 1.0, 1.5, 1.0])
-    with alternative_export_col_3:
+alternative_export_col_3, alternative_spacer_btn_3, alternative_export_col_4, alternative_spacer_btn_4 = st.columns([1.5, 1.0, 1.5, 1.0])
+with alternative_export_col_3:
         alternative_csv_data = generate_alternative_csv_report(alternative_payroll_results, alternative_final_net_take_home, alternative_tbill_investment)
         st.download_button(label="Download CSV Report", data=alternative_csv_data, file_name="alternative_salary_payroll_report.csv", mime="text/csv", use_container_width=True)
-    with alternative_export_col_4:
+with alternative_export_col_4:
         alternative_pdf_data = generate_alternative_pdf_report(alternative_payroll_results, alternative_final_net_take_home, alternative_tbill_investment)
         st.download_button(label="Download PDF Report", data=alternative_pdf_data, file_name="alternative_salary_payroll_report.pdf", mime="application/pdf", use_container_width=True)
 
 
-st.markdown("<h3 style='text-align: center;'>Official Ghana Income Tax Rates</h3>", unsafe_allow_html=True)
+st.subheader("Official Ghana Income Tax Rates")
 
 table_left, table_center, table_right = st.columns([0.5, 5, 0.5])
 with table_center:
@@ -427,17 +432,17 @@ with table_center:
     ]
     st.table(official_tax_bands_data)
 
-st.markdown("<h3 style='text-align: center;'>Tax Information & Education</h3>", unsafe_allow_html=True)
+st.subheader("Tax Information & Education")
 
 
 
-st.markdown("<h5 style='text-align: center;'>Understanding Pay As You Earn (PAYE)</h5>", unsafe_allow_html=True)
+st.subheader("Understanding Pay As You Earn (PAYE)")
 st.write("PAYE stands for Pay As You Earn. It is the system used by the Ghana Revenue Authority to calculate income tax on what you earn from your job. This is a progressive tax system, which means your tax rate goes up as you earn more money. Your income is broken down into separate blocks or bands, and each block is taxed at its own matching rate. As your earnings move up into higher bands, only the money inside those new bands faces the higher tax percentages.")
     
-st.markdown("<h5 style='text-align: center; margin-top: 15px;'>How Pension Deductions Help You Save on Tax</h5>", unsafe_allow_html=True)
+st.subheader("How Pension Deductions Help You Save on Tax")
 st.write("Under Ghanaian labor laws, your employer takes a mandatory 5.5 percent out of your basic salary and sends it straight to SSNIT to fund your main retirement pension. If you choose to put money into an approved voluntary Tier 3 pension plan, you get special tax breaks. You are allowed to set aside up to 16.5 percent of your basic salary completely tax-free. This money is taken out first, lowering the amount of income that the GRA can actually touch with tax percentages.")
     
-st.markdown("<h5 style='text-align: center; margin-top: 15px;'>Where This Information Comes From</h5>", unsafe_allow_html=True)
+st.subheader("Where This Information Comes From")
 st.write("All tax bands and tax percentages used in this calculation app are taken directly from the official website and public guidelines of the Ghana Revenue Authority. The calculation rules match the current systems used across the country.")
 
 st.divider()
