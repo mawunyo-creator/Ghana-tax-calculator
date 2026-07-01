@@ -189,8 +189,6 @@ def generate_alternative_csv_report(alternative_details, alternative_final_net_t
     alternative_output.write(f"Treasury Bill Investment Target (GHS),{alternative_tbill:.2f}\n")
     alternative_output.write(f"Final Net Take Home (GHS),{alternative_final_net_take_home:.2f}\n")
     return alternative_output.getvalue()
-import io
-
 def generate_primary_pdf_report(primary_details, primary_final_net_take_home, primary_tbill):
     primary_pdf = FPDF()
     primary_pdf.add_page()
@@ -207,10 +205,9 @@ def generate_primary_pdf_report(primary_details, primary_final_net_take_home, pr
     primary_pdf.cell(200, 10, txt=f"Short Term Treasury Bill Target: GHS {primary_tbill:.2f}", ln=1)
     primary_pdf.cell(200, 10, txt=f"Final Net Take Home: GHS {primary_final_net_take_home:.2f}", ln=1)
     
-    pdf_output_bytes = primary_pdf.output()
-    if isinstance(pdf_output_bytes, str):
-        pdf_output_bytes = pdf_output_bytes.encode("latin-1")
-    return pdf_output_bytes
+    
+    pdf_string_data = primary_pdf.output(dest="S")
+    return bytes(pdf_string_data, "latin-1")
 
 def generate_alternative_pdf_report(alternative_details, alternative_final_net_take_home, alternative_tbill):
     alternative_pdf = FPDF()
@@ -228,10 +225,10 @@ def generate_alternative_pdf_report(alternative_details, alternative_final_net_t
     alternative_pdf.cell(200, 10, txt=f"Short Term Treasury Bill Target: GHS {alternative_tbill:.2f}", ln=1)
     alternative_pdf.cell(200, 10, txt=f"Final Net Take Home: GHS {alternative_final_net_take_home:.2f}", ln=1)
     
-    pdf_output_bytes = alternative_pdf.output()
-    if isinstance(pdf_output_bytes, str):
-        pdf_output_bytes = pdf_output_bytes.encode("latin-1")
-    return pdf_output_bytes
+    
+    pdf_string_data = alternative_pdf.output(dest="S")
+    return bytes(pdf_string_data, "latin-1")
+    
     
 
 
@@ -321,8 +318,8 @@ with primary_pocket_center:
         
     primary_export_col_1, primary_spacer_btn_1, primary_export_col_2, primary_spacer_btn_2 = st.columns([1.5, 1.0, 1.5, 1.0])
     with primary_export_col_1:
-        primary_csv_data = generate_primary_csv_report(primary_payroll_results, primary_final_net_take_home, primary_tbill_investment)
-        st.download_button(label="Download CSV Report", data=primary_csv_data, file_name="primary_salary_payroll_report.csv", mime="text/csv", use_container_width=True)
+        primary_pdf_data = generate_primary_pdf_report(primary_payroll_results, primary_final_net_take_home, primary_tbill_investment)
+        st.download_button(label="Download CSV Report", data=primary_payroll_results["primary_breakdown_table"].to_csv(index=False), file_name="primary_salary_payroll_report.csv", mime="text/csv", use_container_width=True)
     with primary_export_col_2:
         primary_pdf_data = generate_primary_pdf_report(primary_payroll_results, primary_final_net_take_home, primary_tbill_investment)
         st.download_button(label="Download PDF Report", data=primary_pdf_data, file_name="primary_salary_payroll_report.pdf", mime="application/pdf", use_container_width=True)
@@ -410,10 +407,10 @@ with alternative_pocket_center:
     alternative_export_col_3, alternative_spacer_btn_3, alternative_export_col_4, alternative_spacer_btn_4 = st.columns([1.5, 1.0, 1.5, 1.0])
     with alternative_export_col_3:
         alternative_csv_data = generate_alternative_csv_report(alternative_payroll_results, alternative_final_net_take_home, alternative_tbill_investment)
-        st.download_button(label="Download CSV Report", data=alternative_csv_data, file_name="alternative_salary_payroll_report.csv", mime="text/csv", use_container_width=True)
+        st.download_button(label="Download Alternative CSV Report", data=alternative_payroll_results["alternative_breakdown_table"].to_csv(index=False), file_name="alternative_salary_payroll_report.csv", mime="text/csv", use_container_width=True)
     with alternative_export_col_4:
         alternative_pdf_data = generate_alternative_pdf_report(alternative_payroll_results, alternative_final_net_take_home, alternative_tbill_investment)
-        st.download_button(label="Download PDF Report", data=alternative_pdf_data, file_name="alternative_salary_payroll_report.pdf", mime="application/pdf", use_container_width=True)
+        st.download_button(label="Download Alternative PDF Report", data=alternative_pdf_data, file_name="alternative_salary_payroll_report.pdf", mime="application/pdf", use_container_width=True)
 
 
 st.markdown("<h3 style='text-align: center;'>Official Ghana Income Tax Rates</h3>", unsafe_allow_html=True)
