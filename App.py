@@ -236,7 +236,7 @@ st.set_page_config(layout="wide")
 
 st.subheader("Payroll Report & Tax Calculator")
 
-st.subheading("Primary Salary Details")
+st.subheader("Primary Salary Details")
 
 primary_left_spacer, primary_center_content, primary_right_spacer = st.columns([0.5, 5, 0.5])
 
@@ -305,7 +305,7 @@ with primary_pocket_center:
         
         st.markdown("Take-Home Pay Summary")
         
-        st.write(f"Final Net Take-Home: GHS {primary_payroll_results['primary_final_net_take_home']:.2f}")
+        st.write(f"Final_ Net Take-Home: GHS {primary_payroll_results['primary_final_net_take_home']:.2f}")
         if primary_payroll_results["primary_gross"] > 0:
             primary_retention_percentage = (primary_final_net_take_home / primary_payroll_results["primary_gross"]) * 100
             st.markdown(f"<p style='line-height: 2.0;'>You get to keep {primary_retention_percentage:.1f}% of everything you earned.</p>", unsafe_allow_html=True)
@@ -341,7 +341,7 @@ with alternative_center_content:
         alternative_overtime = st.number_input("Input the second overtime earnings to compare", min_value=0.0, value=0.0, key="alternative_o2")
         alternative_additional_deductions = st.number_input("Input the second additional optional deductions to compare", min_value=0.0, value=0.0, key="alternative_d2")
         
-    st.markdown("<h4 style='text-align: center; margin-top: 30px;'>Comparison Investments</h4>", unsafe_allow_html=True)
+    st.subheader("Investments Comparison")
     
     alternative_investment_column_left, alternative_investment_column_right = st.columns(2)
     
@@ -357,7 +357,7 @@ alternative_final_net_take_home = alternative_payroll_results["alternative_net_s
 if alternative_final_net_take_home < 0:
     alternative_final_net_take_home = 0.0
 
-st.markdown("<h4 style='text-align: center; margin-top: 35px;'>Alternative Salary Graphical Representation</h4>", unsafe_allow_html=True)
+st.subheader("Alternative Salary Graphical Representation")
 alternative_chart_left, alternative_chart_center, alternative_chart_right = st.columns([1.2, 2.6, 1.2])
 
 with alternative_chart_center:
