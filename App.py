@@ -259,7 +259,7 @@ with primary_investment_column_left:
     primary_tbill_investment = st.number_input("Enter your monthly Treasury Bill savings target", min_value=0.0, value=0.0, key="primary_t1")
     
 with primary_investment_column_right:
-    primary_tier3_rate = st.number_input("Enter your voluntary Tier 3 retirement savings rate percentage", min_value=0.0, max_value=16.5, value=0.0, key="primary_tr1")
+    primary_tier3_rate = st.number_input("Enter your voluntary Tier 3 retirement savings rate", min_value=0.0, max_value=16.5, value=0.0, key="primary_tr1")
 
 # Compute data calculations
 primary_payroll_results = calculate_primary_payroll_details(primary_basic_salary, primary_allowances, primary_bonus, primary_overtime, primary_additional_deductions, primary_tier3_rate)
@@ -401,7 +401,7 @@ with alternative_export_col_4:
 st.markdown("<h3 style='text-align: center;'>Official Ghana Income Tax Rates</h3>", unsafe_allow_html=True)
 
 official_tax_bands_data = [
-    {"Tax Band Position": "First Band", "Chargeable Income Amount (GHS)": "490.00", "Tax Rate Percentage": "0% / Free"},
+    {"Tax Band Position": "First Band", "Chargeable Income Amount (GHS)": "490.00", "Tax Rate Percentage": "0%"},
     {"Tax Band Position": "Next Band", "Chargeable Income Amount (GHS)": "110.00", "Tax Rate Percentage": "5%"},
     {"Tax Band Position": "Next Band", "Chargeable Income Amount (GHS)": "130.00", "Tax Rate Percentage": "10%"},
     {"Tax Band Position": "Next Band", "Chargeable Income Amount (GHS)": "3,166.67", "Tax Rate Percentage": "17.5%"},
