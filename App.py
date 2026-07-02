@@ -1,426 +1,187 @@
 import streamlit as st
+import pandas as pd
 import io
 from fpdf import FPDF
+def compute_ghana_payroll_taxes(basic_salary, allowances, bonus, overtime, additional_deductions, tier3_rate):
+    """
+    Computes statutory payroll deductions using standard 2026 GRA tax bands
+    and mandatory/voluntary pension deductions.
+    """
+    mandatory_ssnit = basic_salary * 0.055
+    
+    raw_tier3_deduction = basic_salary * (tier3_rate / 100.0)
+    max_tax_exempt_tier3 = basic_salary * 0.165
+    tax_exempt_tier3 = min(raw_tier3_deduction, max_tax_exempt_tier3)
+    
+    
+    total_gross = basic_salary + allowances + bonus + overtime
 
-def calculate_primary_payroll_details(primary_basic_salary, primary_allowances, primary_bonus, primary_overtime, primary_additional_deductions, primary_tier3_percentage):
-    primary_ssnit_mandatory = primary_basic_salary * 0.055
+    chargeable_income = total_gross - mandatory_ssnit - tax_exempt_tier3 - additional_deductions
+    chargeable_income = max(0.0, chargeable_income)
     
-    primary_tier3_decimal = primary_tier3_percentage / 100.0
-    primary_tier3_deduction = primary_basic_salary * primary_tier3_decimal
-    
-    primary_max_tax_free_tier3 = primary_basic_salary * 0.165
-    if primary_tier3_deduction > primary_max_tax_free_tier3:
-        primary_tax_exempt_tier3 = primary_max_tax_free_tier3
-    else:
-        primary_tax_exempt_tier3 = primary_tier3_deduction
-        
-    primary_total_gross = primary_basic_salary + primary_allowances + primary_bonus + primary_overtime
-    
-    primary_chargeable_income = primary_total_gross - primary_ssnit_mandatory - primary_tax_exempt_tier3 - primary_additional_deductions
-    if primary_chargeable_income < 0:
-        primary_chargeable_income = 0.0
-        
-    primary_tax_paid = 0.0
-    primary_remaining_income = primary_chargeable_income
-    
-    primary_tax_bands = [
+    gra_tax_bands = [
         ("First Band", 490.0, 0.0),
         ("Next Band", 110.0, 0.05),
         ("Next Band", 130.0, 0.10),
         ("Next Band", 3166.67, 0.175),
-        ("Next Band", 11000.0, 0.25)
+        ("Next Band", 11000.0, 0.25),
+        ("Next Band", 29603.33, 0.30) 
     ]
     
-    primary_band_breakdown = []
+    tax_paid = 0.0
+    remaining_taxable = chargeable_income
+    band_breakdown = []
     
-    for primary_band_name, primary_band_limit, primary_tax_rate in primary_tax_bands:
-        if primary_remaining_income > primary_band_limit:
-            primary_allocated_amount = primary_band_limit
-            primary_allocated_tax = primary_band_limit * primary_tax_rate
-            primary_tax_paid += primary_allocated_tax
-            primary_remaining_income -= primary_band_limit
-        else:
-            primary_allocated_amount = primary_remaining_income
-            primary_allocated_tax = primary_remaining_income * primary_tax_rate
-            primary_tax_paid += primary_allocated_tax
-            primary_remaining_income = 0.0
-            
-        primary_band_breakdown.append({
-            "Tax Band Position": primary_band_name,
-            "Tax Rate": f"{primary_tax_rate * 100}%",
-            "Amount Taxed (GHS)": f"{primary_allocated_amount:.2f}",
-            "Tax Paid (GHS)": f"{primary_allocated_tax:.2f}"
-        })
+    for band_name, band_limit, tax_rate in gra_tax_bands:
+        allocated_amount = min(remaining_taxable, band_limit)
+        allocated_tax = allocated_amount * tax_rate
+        tax_paid += allocated_tax
+        remaining_taxable -= allocated_amount
         
-        if primary_remaining_income == 0.0:
+        band_breakdown.append({
+            "Tax Band Position": band_name,
+            "Tax Rate": f"{tax_rate * 100}%",
+            "Amount Taxed (GHS)": f"{allocated_amount:.2f}",
+            "Tax Paid (GHS)": f"{allocated_tax:.2f}"
+        })
+        if remaining_taxable <= 0:
             break
             
-    if primary_remaining_income > 0:
-        primary_allocated_tax = primary_remaining_income * 0.30
-        primary_tax_paid += primary_allocated_tax
-        primary_band_breakdown.append({
+
+    if remaining_taxable > 0:
+        allocated_tax = remaining_taxable * 0.35
+        tax_paid += allocated_tax
+        band_breakdown.append({
             "Tax Band Position": "Exceeding Balance",
-            "Tax Rate": "30%",
-            "Amount Taxed (GHS)": f"{primary_remaining_income:.2f}",
-            "Tax Paid (GHS)": f"{primary_allocated_tax:.2f}"
+            "Tax Rate": "35%",
+            "Amount Taxed (GHS)": f"{remaining_taxable:.2f}",
+            "Tax Paid (GHS)": f"{allocated_tax:.2f}"
         })
         
-    primary_total_deductions = primary_ssnit_mandatory + primary_tax_paid + primary_tier3_deduction + primary_additional_deductions
-    primary_net_salary = primary_total_gross - primary_total_deductions
-    
-    primary_effective_tax_rate = (primary_tax_paid / primary_total_gross * 100) if primary_total_gross > 0 else 0.0
+    total_deductions = mandatory_ssnit + tax_paid + raw_tier3_deduction + additional_deductions
+    net_salary = total_gross - total_deductions
+    effective_tax_rate = (tax_paid / total_gross * 100) if total_gross > 0 else 0.0
     
     return {
-        "primary_gross": primary_total_gross,
-        "primary_ssnit": primary_ssnit_mandatory,
-        "primary_tier3": primary_tier3_deduction,
-        "primary_taxable": primary_chargeable_income,
-        "primary_tax": primary_tax_paid,
-        "primary_total_deductions": primary_total_deductions,
-        "primary_net_salary": primary_net_salary,
-        "primary_effective_tax_rate": primary_effective_tax_rate,
-        "primary_breakdown_table": primary_band_breakdown
+        "gross": total_gross,
+        "ssnit": mandatory_ssnit,
+        "tier3": raw_tier3_deduction,
+        "taxable": chargeable_income,
+        "tax": tax_paid,
+        "total_deductions": total_deductions,
+        "net_salary": net_salary,
+        "effective_tax_rate": effective_tax_rate,
+        "breakdown": band_breakdown
     }
 
-def calculate_alternative_payroll_details(alternative_basic_salary, alternative_allowances, alternative_bonus, alternative_overtime, alternative_additional_deductions, alternative_tier3_percentage):
-    alternative_ssnit_mandatory = alternative_basic_salary * 0.055
-    
-    alternative_tier3_decimal = alternative_tier3_percentage / 100.0
-    alternative_tier3_deduction = alternative_basic_salary * alternative_tier3_decimal
-    
-    alternative_max_tax_free_tier3 = alternative_basic_salary * 0.165
-    if alternative_tier3_deduction > alternative_max_tax_free_tier3:
-        alternative_tax_exempt_tier3 = alternative_max_tax_free_tier3
-    else:
-        alternative_tax_exempt_tier3 = alternative_tier3_deduction
-        
-    alternative_total_gross = alternative_basic_salary + alternative_allowances + alternative_bonus + alternative_overtime
-    
-    alternative_chargeable_income = alternative_total_gross - alternative_ssnit_mandatory - alternative_tax_exempt_tier3 - alternative_additional_deductions
-    if alternative_chargeable_income < 0:
-        alternative_chargeable_income = 0.0
-        
-    alternative_tax_paid = 0.0
-    alternative_remaining_income = alternative_chargeable_income
-    
-    alternative_tax_bands = [
-        ("First Band", 490.0, 0.0),
-        ("Next Band", 110.0, 0.05),
-        ("Next Band", 130.0, 0.10),
-        ("Next Band", 3166.67, 0.175),
-        ("Next Band", 11000.0, 0.25)
-    ]
-    
-    alternative_band_breakdown = []
-    
-    for alternative_band_name, alternative_band_limit, alternative_tax_rate in alternative_tax_bands:
-        if alternative_remaining_income > alternative_band_limit:
-            alternative_allocated_amount = alternative_band_limit
-            alternative_allocated_tax = alternative_band_limit * alternative_tax_rate
-            alternative_tax_paid += alternative_allocated_tax
-            alternative_remaining_income -= alternative_band_limit
-        else:
-            alternative_allocated_amount = alternative_remaining_income
-            alternative_allocated_tax = alternative_remaining_income * alternative_tax_rate
-            alternative_tax_paid += alternative_allocated_tax
-            alternative_remaining_income = 0.0
-            
-        alternative_band_breakdown.append({
-            "Tax Band Position": alternative_band_name,
-            "Tax Rate": f"{alternative_tax_rate * 100}%",
-            "Amount Taxed (GHS)": f"{alternative_allocated_amount:.2f}",
-            "Tax Paid (GHS)": f"{alternative_allocated_tax:.2f}"
-        })
-        
-        if alternative_remaining_income == 0.0:
-            break
-            
-    if alternative_remaining_income > 0:
-        alternative_allocated_tax = alternative_remaining_income * 0.30
-        alternative_tax_paid += alternative_allocated_tax
-        alternative_band_breakdown.append({
-            "Tax Band Position": "Exceeding Balance",
-            "Tax Rate": "30%",
-            "Amount Taxed (GHS)": f"{alternative_remaining_income:.2f}",
-            "Tax Paid (GHS)": f"{alternative_allocated_tax:.2f}"
-        })
-        
-    alternative_total_deductions = alternative_ssnit_mandatory + alternative_tax_paid + alternative_tier3_deduction + alternative_additional_deductions
-    alternative_net_salary = alternative_total_gross - alternative_total_deductions
-    
-    alternative_effective_tax_rate = (alternative_tax_paid / alternative_total_gross * 100) if alternative_total_gross > 0 else 0.0
-    
-    return {
-        "alternative_gross": alternative_total_gross,
-        "alternative_ssnit": alternative_ssnit_mandatory,
-        "alternative_tier3": alternative_tier3_deduction,
-        "alternative_taxable": alternative_chargeable_income,
-        "alternative_tax": alternative_tax_paid,
-        "alternative_total_deductions": alternative_total_deductions,
-        "alternative_net_salary": alternative_net_salary,
-        "alternative_effective_tax_rate": alternative_effective_tax_rate,
-        "alternative_breakdown_table": alternative_band_breakdown
-    }
+def generate_csv_report(details):
+    df_csv = pd.DataFrame(details["breakdown"])
+    return df_csv.to_csv(index=False).encode("utf-8")
 
-def generate_primary_csv_report(primary_details, primary_final_net_take_home, primary_tbill):
-    primary_output = io.StringIO()
-    primary_output.write("Payroll Report for Primary Salary")
-    primary_output.write(f"Total Gross Earnings (GHS),{primary_details['primary_gross']:.2f}")
-    primary_output.write(f"Mandatory SSNIT Contribution (GHS),{primary_details['primary_ssnit']:.2f}")
-    primary_output.write(f"Pension Plan Savings (GHS),{primary_details['primary_tier3']:.2f}")
-    primary_output.write(f"Taxable Chargeable Income (GHS),{primary_details['primary_taxable']:.2f}")
-    primary_output.write(f"Income Tax Paid to GRA (GHS),{primary_details['primary_tax']:.2f}")
-    primary_output.write(f"Total Deductions (GHS),{primary_details['primary_total_deductions']:.2f}")
-    primary_output.write(f"Effective Tax Rate (%),{primary_details['primary_effective_tax_rate']:.2f}")
-    primary_output.write(f"Treasury Bill Investment Target (GHS),{primary_tbill:.2f}")
-    primary_output.write(f"Final Net Take Home (GHS),{primary_final_net_take_home:.2f}")
-    return primary_output.getvalue()
 
-def generate_alternative_csv_report(alternative_details, alternative_final_net_take_home, alternative_tbill):
-    alternative_output = io.StringIO()
-    alternative_output.write("Payroll Report for Alternative Salary\n")
-    alternative_output.write(f"Total Gross Earnings (GHS),{alternative_details['alternative_gross']:.2f}")
-    alternative_output.write(f"Mandatory SSNIT Contribution (GHS),{alternative_details['alternative_ssnit']:.2f}\n")
-    alternative_output.write(f"Pension Plan Savings (GHS),{alternative_details['alternative_tier3']:.2f}")
-    alternative_output.write(f"Taxable Chargeable Income (GHS),{alternative_details['alternative_taxable']:.2f}\n")
-    alternative_output.write(f"Income Tax Paid to GRA (GHS),{alternative_details['alternative_tax']:.2f}")
-    alternative_output.write(f"Total Deductions (GHS),{alternative_details['alternative_total_deductions']:.2f}\n")
-    alternative_output.write(f"Effective Tax Rate (%),{alternative_details['alternative_effective_tax_rate']:.2f}\n")
-    alternative_output.write(f"Treasury Bill Investment Target (GHS),{alternative_tbill:.2f}")
-    alternative_output.write(f"Final Net Take Home (GHS),{alternative_final_net_take_home:.2f}")
-    return alternative_output.getvalue()
+def generate_pdf_report(label, details, final_net, tbill):
+    pdf = FPDF()
+    pdf.add_page()
+    
+    pdf.cell(200, 10, txt=f"Official Payroll  Report - {label}", ln=1, align="C")
+    
+    
+    pdf.cell(200, 10, txt=f"Total Gross Earnings: GHS {details['gross']:.2f}", ln=1)
+    pdf.cell(200, 10, txt=f"Mandatory SSNIT Contribution (5.5%): GHS {details['ssnit']:.2f}", ln=1)
+    pdf.cell(200, 10, txt=f"Pension Plan Savings: GHS {details['tier3']:.2f}", ln=1)
+    pdf.cell(200, 10, txt=f"Taxable Chargeable Income: GHS {details['taxable']:.2f}", ln=1)
+    pdf.cell(200, 10, txt=f"Income Tax Paid to GRA (PAYE): GHS {details['tax']:.2f}", ln=1)
+    pdf.cell(200, 10, txt=f"Total Deductions Applied: GHS {details['total_deductions']:.2f}", ln=1)
+    pdf.cell(200, 10, txt=f"Effective Income Tax Rate: {details['effective_tax_rate']:.2f}%", ln=1)
+    pdf.cell(200, 10, txt=f"Treasury Bill Target: GHS {tbill:.2f}", ln=1)
+    pdf.cell(200, 10, txt=f"Final Net Take Home: GHS {final_net:.2f}", ln=1)
+    
+    pdf_output = pdf.output(dest="S")
+    if isinstance(pdf_output, str):
+        return pdf_output.encode("latin-1")
+    return bytes(pdf_output)
 
-def generate_primary_pdf_report(primary_details, primary_final_net_take_home, primary_tbill):
-    primary_pdf = FPDF()
-    primary_pdf.add_page()
-    primary_pdf.set_font("Arial", size=12)
-    
-    primary_pdf.cell(200, 10, "Official Payroll Report - Primary Salary", 0, 1, "C")
-    primary_pdf.cell(200, 10, f"Total Gross Earnings: GHS {primary_details['primary_gross']:.2f}", 0, 1)
-    primary_pdf.cell(200, 10, f"Mandatory SSNIT Contribution (5.5%): GHS {primary_details['primary_ssnit']:.2f}", 0, 1)
-    primary_pdf.cell(200, 10, f"Pension Plan Savings: GHS {primary_details['primary_tier3']:.2f}", 0, 1)
-    primary_pdf.cell(200, 10, f"Taxable Chargeable Income: GHS {primary_details['primary_taxable']:.2f}", 0, 1)
-    primary_pdf.cell(200, 10, f"Income Tax Paid to GRA (PAYE): GHS {primary_details['primary_tax']:.2f}", 0, 1)
-    primary_pdf.cell(200, 10, f"Total Deductions Applied: GHS {primary_details['primary_total_deductions']:.2f}", 0, 1)
-    primary_pdf.cell(200, 10, f"Effective Income Tax Rate: {primary_details['primary_effective_tax_rate']:.2f}%", 0, 1)
-    primary_pdf.cell(200, 10, f"Treasury Bill Target: GHS {primary_tbill:.2f}", 0, 1)
-    primary_pdf.cell(200, 10, f"Final Net Take Home: GHS {primary_final_net_take_home:.2f}", 0, 1)
-    
-    primary_pdf_output = primary_pdf.output(dest="S")
-    if isinstance(primary_pdf_output, str):
-        return primary_pdf_output.encode("latin-1")
-    return bytes(primary_pdf_output)
-
-def generate_alternative_pdf_report(alternative_details, alternative_final_net_take_home, alternative_tbill):
-    alternative_pdf = FPDF()
-    alternative_pdf.add_page()
-    alternative_pdf.set_font("Arial", size=12)
-    
-    alternative_pdf.cell(200, 10, "Official Payroll Report - Alternative Salary", 0, 1, "C")
-    alternative_pdf.cell(200, 10, f"Total Gross Earnings: GHS {alternative_details['alternative_gross']:.2f}", 0, 1)
-    alternative_pdf.cell(200, 10, f"Mandatory SSNIT Contribution (5.5%): GHS {alternative_details['alternative_ssnit']:.2f}", 0, 1)
-    alternative_pdf.cell(200, 10, f"Pension Plan Savings: GHS {alternative_details['alternative_tier3']:.2f}", 0, 1)
-    alternative_pdf.cell(200, 10, f"Taxable Chargeable Income: GHS {alternative_details['alternative_taxable']:.2f}", 0, 1)
-    alternative_pdf.cell(200, 10, f"Income Tax Paid to GRA (PAYE): GHS {alternative_details['alternative_tax']:.2f}", 0, 1)
-    alternative_pdf.cell(200, 10, f"Total Deductions Applied: GHS {alternative_details['alternative_total_deductions']:.2f}", 0, 1)
-    alternative_pdf.cell(200, 10, f"Effective Income Tax Rate: {alternative_details['alternative_effective_tax_rate']:.2f}%", 0, 1)
-    alternative_pdf.cell(200, 10, f"Treasury Bill Target: GHS {alternative_tbill:.2f}", 0, 1)
-    alternative_pdf.cell(200, 10, f"Final Net Take Home: GHS {alternative_final_net_take_home:.2f}", 0, 1)
-    
-    alternative_pdf_output = alternative_pdf.output(dest="S")
-    if isinstance(alternative_pdf_output, str):
-        return alternative_pdf_output.encode("latin-1")
-    return bytes(alternative_pdf_output)
 
 st.set_page_config(layout="wide")
 
-st.subheader("Payroll Report & Tax Calculator")
+st.markdown("<h2 style='text-align: center;'>Ghana Payroll and Tax Calculator</h2>", unsafe_allow_html=True)
 
-st.subheader("Primary Salary Details")
 
-primary_left_spacer, primary_center_content, primary_right_spacer = st.columns([0.5, 5, 0.5])
-
-with primary_center_content:
-    primary_input_column_left, primary_input_column_right = st.columns(2)
+def render_payroll_section(key_prefix, layout_title, default_basic):
+    st.markdown(f"<h3 style='text-align: center; margin-top: 20px;'>{layout_title}</h3>", unsafe_allow_html=True)
     
-    with primary_input_column_left:
-        primary_basic_salary = st.number_input("Input your monthly basic salary here", min_value=0.0, value=3000.0, key="primary_b1")
-        primary_allowances = st.number_input("Input your total monthly allowances here", min_value=0.0, value=0.0, key="primary_a1")
-        primary_bonus = st.number_input("Input your monthly bonuses here", min_value=0.0, value=0.0, key="primary_bo1")
-        
-    with primary_input_column_right:
-        primary_overtime = st.number_input("Input your overtime earnings here", min_value=0.0, value=0.0, key="primary_o1")
-        primary_additional_deductions = st.number_input("Input any additional optional deductions here", min_value=0.0, value=0.0, key="primary_d1")
-        
-    st.subheader("Investments")
+    _, center_content, _ = st.columns([0.5, 5, 0.5])
     
-    primary_investment_column_left, primary_investment_column_right = st.columns(2)
-    
-    with primary_investment_column_left:
-        primary_tbill_investment = st.number_input("Enter your monthly Treasury Bill savings target", min_value=0.0, value=0.0, key="primary_t1")
-        
-    with primary_investment_column_right:
-        primary_tier3_rate = st.number_input("Enter your voluntary Tier 3 retirement savings rate percentage", min_value=0.0, max_value=16.5, value=0.0, key="primary_tr1")
-
-primary_payroll_results = calculate_primary_payroll_details(primary_basic_salary, primary_allowances, primary_bonus, primary_overtime, primary_additional_deductions, primary_tier3_rate)
-
-primary_final_net_take_home = primary_payroll_results["primary_net_salary"] - primary_tbill_investment
-if primary_final_net_take_home < 0:
-    primary_final_net_take_home =0.0
-primary_chart_left, primary_chart_center, primary_chart_right = st.columns([1.2, 2.6, 1.2])
-st.subheader("Primary Salary Graphical Representation")
-
-with primary_chart_center:
-    primary_vertical_chart_data = {
-        "Amount (GHS)": [
-            primary_payroll_results["primary_gross"], 
-            primary_payroll_results["primary_ssnit"], 
-            primary_payroll_results["primary_tax"], 
-            primary_final_net_take_home
-        ]
-    }
-    st.bar_chart(data=primary_vertical_chart_data, y="Amount (GHS)", height=280)
-
-st.subheader("Primary Deductions and Net Pay Details")
-primary_metric_left, primary_metric_center, primary_metric_right = st.columns([0.5, 5, 0.5])
-
-with primary_metric_center:
-    primary_metric_column_one, primary_metric_column_two, primary_metric_column_three, primary_metric_column_four = st.columns(4)
-    with primary_metric_column_one:
-        st.metric("Total Gross Earnings", f"GHS {primary_payroll_results['primary_gross']:.2f}")
-    with primary_metric_column_two:
-        st.metric("Mandatory SSNIT Contribution", f"GHS {primary_payroll_results['primary_ssnit']:.2f}")
-    with primary_metric_column_three:
-        st.metric("Income Tax Paid to GRA", f"GHS {primary_payroll_results['primary_tax']:.2f}")
-    with primary_metric_column_four:
-        st.metric("Final Net Take Home", f"GHS {primary_final_net_take_home:.2f}")
-        
-    
-st.subheader("Primary Salary Breakdown Summary")
-primary_pocket_left, primary_pocket_center, primary_pocket_right = st.columns([0.5, 5, 0.5])
-
-with primary_pocket_center:
-    primary_pocket_left_pane, primary_space_buffer, primary_pocket_right_pane = st.columns([2.5, 0.5, 2.5])
-    with primary_pocket_left_pane:
-        
-        st.markdown("Take-Home Pay Summary")
-        
-        st.write(f"Final_ Net Take-Home: GHS {primary_payroll_results['primary_final_net_take_home']:.2f}")
-        if primary_payroll_results["primary_gross"] > 0:
-            primary_retention_percentage = (primary_final_net_take_home / primary_payroll_results["primary_gross"]) * 100
-            st.markdown(f"<p style='line-height: 2.0;'>You get to keep {primary_retention_percentage:.1f}% of everything you earned.</p>", unsafe_allow_html=True)
-            with primary_pocket_right_pane:
-                st.markdown(" Investment & Summary Results")
-    
-    st.write(f"You get to keep {primary_retention_percentage:.2f}% of your gross.")
-    st.write(f"Pension Contribution: GHS {primary_payroll_results['primary_ssnit']:.2f}")
-    st.write(f"Treasury Bill Investment: GHS {primary_tbill_investment:.2f}")
-        
-    primary_export_col_1, primary_spacer_btn_1, primary_export_col_2, primary_spacer_btn_2 = st.columns([1.5, 1.0, 1.5, 1.0])
-    with primary_export_col_1:
-        primary_csv_data = generate_primary_csv_report(primary_payroll_results, primary_final_net_take_home, primary_tbill_investment)
-        st.download_button(label="Download CSV Report", data=primary_csv_data, file_name="primary_salary_payroll_report.csv", mime="text/csv", use_container_width=True)
-    with primary_export_col_2:
-        primary_pdf_data = generate_primary_pdf_report(primary_payroll_results, primary_final_net_take_home, primary_tbill_investment)
-        st.download_button(label="Download PDF Report", data=primary_pdf_data, file_name="primary_salary_payroll_report.pdf", mime="application/pdf", use_container_width=True)
-
-
-st.subheader("Alternative Salary Details")
-
-alternative_left_spacer, alternative_center_content, alternative_right_spacer = st.columns([0.5, 5, 0.5])
-
-with alternative_center_content:
-    alternative_input_column_left, alternative_input_column_right = st.columns(2)
-    
-    with alternative_input_column_left:
-        alternative_basic_salary = st.number_input("Input the second monthly basic salary to compare", min_value=0.0, value=4000.0, key="alternative_b2")
-        alternative_allowances = st.number_input("Input the second total monthly allowances to compare", min_value=0.0, value=0.0, key="alternative_a2")
-        alternative_bonus = st.number_input("Input the second monthly bonuses to compare", min_value=0.0, value=0.0, key="alternative_bo2")
-        
-    with alternative_input_column_right:
-        alternative_overtime = st.number_input("Input the second overtime earnings to compare", min_value=0.0, value=0.0, key="alternative_o2")
-        alternative_additional_deductions = st.number_input("Input the second additional optional deductions to compare", min_value=0.0, value=0.0, key="alternative_d2")
-        
-    st.subheader("Investments Comparison")
-    
-    alternative_investment_column_left, alternative_investment_column_right = st.columns(2)
-    
-    with alternative_investment_column_left:
-        alternative_tbill_investment = st.number_input("Enter the second monthly Treasury Bill savings target", min_value=0.0, value=0.0, key="alternative_t2")
-        
-    with alternative_investment_column_right:
-        alternative_tier3_rate = st.number_input("Enter the second voluntary Tier 3 retirement savings rate percentage", min_value=0.0, max_value=16.5, value=0.0, key="alternative_tr2")
-
-alternative_payroll_results = calculate_alternative_payroll_details(alternative_basic_salary, alternative_allowances, alternative_bonus, alternative_overtime, alternative_additional_deductions, alternative_tier3_rate)
-
-alternative_final_net_take_home = alternative_payroll_results["alternative_net_salary"] - alternative_tbill_investment
-if alternative_final_net_take_home < 0:
-    alternative_final_net_take_home = 0.0
-
-st.subheader("Alternative Salary Graphical Representation")
-alternative_chart_left, alternative_chart_center, alternative_chart_right = st.columns([1.2, 2.6, 1.2])
-
-with alternative_chart_center:
-    alternative_vertical_chart_data = {
-        "Amount (GHS)": [
-            alternative_payroll_results["alternative_gross"], 
-            alternative_payroll_results["alternative_ssnit"], 
-            alternative_payroll_results["alternative_tax"], 
-            alternative_final_net_take_home
-        ]
-    }
-    st.bar_chart(data=alternative_vertical_chart_data, y="Amount (GHS)", height=280)
-
-st.subheader("Alternative Salary Deductions and Net Pay Details")
-alternative_metric_left, alternative_metric_center, alternative_metric_right = st.columns([0.5, 5, 0.5])
-
-with alternative_metric_center:
-    alternative_metric_column_one, alternative_metric_column_two, alternative_metric_column_three, alternative_metric_column_four = st.columns(4)
-    with alternative_metric_column_one:
-        st.metric("Total Gross Earnings", f"GHS {alternative_payroll_results['alternative_gross']:.2f}")
-    with alternative_metric_column_two:
-        st.metric("Mandatory SSNIT Contribution", f"GHS {alternative_payroll_results['alternative_ssnit']:.2f}")
-    with alternative_metric_column_three:
-        st.metric("Income Tax Paid to GRA", f"GHS {alternative_payroll_results['alternative_tax']:.2f}")
-    with alternative_metric_column_four:
-        st.metric("Final Net Take Home", f"GHS {alternative_final_net_take_home:.2f}")
-
-    st.write(f"Effective Tax Rate: {alternative_payroll_results['alternative_effective_tax_rate']:.2f}%")
-
-st.subheader("Alternative Salary Expenses and Estimates")
-alternative_pocket_left, alternative_pocket_center, alternative_pocket_right = st.columns([0.5, 5, 0.5])
-
-with alternative_pocket_center:
-    alternative_pocket_left_pane, alternative_space_buffer_2, alternative_pocket_right_pane = st.columns([2.5, 0.5, 2.5])
-    with alternative_pocket_left_pane:
-
-        st.markdown("Alternative Take-Home Pay Summary")
-
-
-st.write(f"Final Net Take-Home: GHS {alternative_payroll_results['alternative_final_net_take_home']:.2f}")
-if alternative_payroll_results["alternative_gross"] > 0:
-            alternative_retention_percentage = (alternative_final_net_take_home / alternative_payroll_results["alternative_gross"]) * 100
-            st.markdown(f"<p style='line-height: 2.0;'>You get to keep {alternative_retention_percentage:.1f}% of everything you earned.</p>", unsafe_allow_html=True)
+    with center_content:
+        input_col_left, input_col_right = st.columns(2)
+        with input_col_left:
+            basic = st.number_input("Input your monthly basic salary", min_value=0.0, value=default_basic, key=f"{key_prefix}_basic")
+            allowances = st.number_input("Input your total monthly allowances", min_value=0.0, value=0.0, key=f"{key_prefix}_allowance")
+            bonus = st.number_input("Input your monthly bonuses", min_value=0.0, value=0.0, key=f"{key_prefix}_bonus")
+        with input_col_right:
+            overtime = st.number_input("Input your overtime earnings", min_value=0.0, value=0.0, key=f"{key_prefix}_overtime")
+            additional_deductions = st.number_input("Input any additional optional deductions", min_value=0.0, value=0.0, key=f"{key_prefix}_deduct")
             
-with alternative_pocket_right_pane:
-        st.markdown("Your Total Savings Breakdown")
-        st.write(f"Pension Plan Savings: GHS {alternative_payroll_results['alternative_ssnit']:.2f}")
-        st.write(f"Treasury Bill Investment Amount: GHS {alternative_tbill_investment:.2f}")
-        st.write(f"You get to keep {alternative_retention_percentage:.2f}% of your gross.")
+        st.markdown("<h4 style='text-align: center; margin-top: 30px;'>Investments</h4>", unsafe_allow_html=True)
+        investment_col_left, investment_col_right = st.columns(2)
+        with investment_col_left:
+            tbill_investment = st.number_input("Enter your monthly Treasury Bill savings target", min_value=0.0, value=0.0, key=f"{key_prefix}_tbill")
+        with investment_col_right:
+            tier3_rate = st.number_input("Enter your voluntary Tier 3 retirement savings rate percentage", min_value=0.0, max_value=16.5, value=0.0, key=f"{key_prefix}_t3")
 
-        
-alternative_export_col_3, alternative_spacer_btn_3, alternative_export_col_4, alternative_spacer_btn_4 = st.columns([1.5, 1.0, 1.5, 1.0])
-with alternative_export_col_3:
-        alternative_csv_data = generate_alternative_csv_report(alternative_payroll_results, alternative_final_net_take_home, alternative_tbill_investment)
-        st.download_button(label="Download CSV Report", data=alternative_csv_data, file_name="alternative_salary_payroll_report.csv", mime="text/csv", use_container_width=True)
-with alternative_export_col_4:
-        alternative_pdf_data = generate_alternative_pdf_report(alternative_payroll_results, alternative_final_net_take_home, alternative_tbill_investment)
-        st.download_button(label="Download PDF Report", data=alternative_pdf_data, file_name="alternative_salary_payroll_report.pdf", mime="application/pdf", use_container_width=True)
+    results = compute_ghana_payroll_taxes(basic, allowances, bonus, overtime, additional_deductions, tier3_rate)
+    final_net_take_home = max(0.0, results["net_salary"] - tbill_investment)
 
 
-st.subheader("Official Ghana Income Tax Rates")
+    st.markdown(f"<h4 style='text-align: center; margin-top: 35px;'>{layout_title} Graphical Representation</h4>", unsafe_allow_html=True)
+    _, chart_center, _ = st.columns([1.2, 2.6, 1.2])
+    with chart_center:
+        chart_df = pd.DataFrame(
+            [results["gross"], results["ssnit"], results["tax"], final_net_take_home],
+            index=["Gross Earnings", "SSNIT (5.5%)", "Income Tax (PAYE)", "Net Take-Home"],
+            columns=["Amount (GHS)"]
+        )
+        st.bar_chart(chart_df, height=280)
+    st.markdown(f"<h4 style='text-align: center; margin-top: 35px;'>{layout_title} Deductions and Net Pay Details</h4>", unsafe_allow_html=True)
+    _, metric_center, _ = st.columns([0.5, 5, 0.5])
+    with metric_center:
+        m1, m2, m3, m4 = st.columns(4)
+        m1.metric("Total Gross Earnings", f"GHS {results['gross']:.2f}")
+        m2.metric("Mandatory SSNIT Contribution", f"GHS {results['ssnit']:.2f}")
+        m3.metric("Income Tax Paid to GRA", f"GHS {results['tax']:.2f}")
+        m4.metric("Final Net Take Home", f"GHS {final_net_take_home:.2f}")
+        st.markdown(f"<p style='text-align: center; margin-top: 25px; margin-bottom: 25px; font-size: 1.25em;'>Effective Tax Rate: {results['effective_tax_rate']:.2f}%</p>", unsafe_allow_html=True)
 
-table_left, table_center, table_right = st.columns([0.5, 5, 0.5])
+    st.markdown(f"<h4 style='text-align: center; margin-top: 40px; margin-bottom: 20px;'>{layout_title} Expenses and Estimates</h4>", unsafe_allow_html=True)
+    _, pocket_center, _ = st.columns([0.5, 5, 0.5])
+    with pocket_center:
+        pane_left, _, pane_right = st.columns([2.5, 0.5, 2.5])
+        with pane_left:
+            st.markdown("<h5 style='text-align: left; margin-bottom: 15px;'>Take-Home Pay Summary</h5>", unsafe_allow_html=True)
+            st.markdown(f"<p style='line-height: 2.0; margin-bottom: 10px;'>Final Net Take Home: GHS {final_net_take_home:.2f}</p>", unsafe_allow_html=True)
+            if results["gross"] > 0:
+                retention_percentage = (final_net_take_home / results["gross"]) * 100
+                st.markdown(f"<p style='line-height: 2.0;'>You get to keep {retention_percentage:.1f}% of everything you earned.</p>", unsafe_allow_html=True)
+        with pane_right:
+            st.markdown("<h5 style='text-align: left; margin-bottom: 15px;'>Your Total Savings Breakdown</h5>", unsafe_allow_html=True)
+            st.markdown(f"<p style='line-height: 2.0; margin-bottom: 10px;'>Pension Plan Savings: GHS {results['tier3']:.2f}</p>", unsafe_allow_html=True)
+            st.markdown(f"<p style='line-height: 2.0;'>Treasury Bill Investment Amount: GHS {tbill_investment:.2f}</p>", unsafe_allow_html=True)
+            
+        export_col_1, _, export_col_2, _ = st.columns([1.5, 1.0, 1.5, 1.0])
+        with export_col_1:
+            csv_data = generate_csv_report(results)
+            st.download_button(label="Download CSV Report", data=csv_data, file_name=f"{key_prefix}_salary_payroll_report.csv", mime="text/csv", use_container_width=True)
+        with export_col_2:
+            pdf_data = generate_pdf_report(layout_title, results, final_net_take_home, tbill_investment)
+            st.download_button(label="Download PDF Report", data=pdf_data, file_name=f"{key_prefix}_salary_payroll_report.pdf", mime="application/pdf", use_container_width=True)
+
+render_payroll_section("primary", "Primary Salary Details", 3000.0)
+render_payroll_section("alternative", "Alternative Salary Details", 4000.0)
+
+
+st.markdown("<h3 style='text-align: center;'>Official Ghana Income Tax Rates</h3>", unsafe_allow_html=True)
+
+_, table_center, _ = st.columns([0.5, 5, 0.5])
 with table_center:
     official_tax_bands_data = [
         {"Tax Band Position": "First Band", "Chargeable Income Amount (GHS)": "490.00", "Tax Rate Percentage": "0% / Free"},
@@ -428,36 +189,24 @@ with table_center:
         {"Tax Band Position": "Next Band", "Chargeable Income Amount (GHS)": "130.00", "Tax Rate Percentage": "10%"},
         {"Tax Band Position": "Next Band", "Chargeable Income Amount (GHS)": "3,166.67", "Tax Rate Percentage": "17.5%"},
         {"Tax Band Position": "Next Band", "Chargeable Income Amount (GHS)": "11,000.00", "Tax Rate Percentage": "25%"},
-        {"Tax Band Position": "Exceeding Balance", "Chargeable Income Amount (GHS)": "Above 15,396.67", "Tax Rate Percentage": "30%"}
+        {"Tax Band Position": "Next Band", "Chargeable Income Amount (GHS)": "29,603.33", "Tax Rate Percentage": "30%"},
+        {"Tax Band Position": "Exceeding Balance", "Chargeable Income Amount (GHS)": "Above 45,000.00", "Tax Rate Percentage": "35%"}
     ]
     st.table(official_tax_bands_data)
 
-st.subheader("Tax Information & Education")
-
-
-
-st.subheader("Understanding Pay As You Earn (PAYE)")
-st.write("PAYE stands for Pay As You Earn. It is the system used by the Ghana Revenue Authority to calculate income tax on what you earn from your job. This is a progressive tax system, which means your tax rate goes up as you earn more money. Your income is broken down into separate blocks or bands, and each block is taxed at its own matching rate. As your earnings move up into higher bands, only the money inside those new bands faces the higher tax percentages.")
-    
-st.subheader("How Pension Deductions Help You Save on Tax")
-st.write("Under Ghanaian labor laws, your employer takes a mandatory 5.5 percent out of your basic salary and sends it straight to SSNIT to fund your main retirement pension. If you choose to put money into an approved voluntary Tier 3 pension plan, you get special tax breaks. You are allowed to set aside up to 16.5 percent of your basic salary completely tax-free. This money is taken out first, lowering the amount of income that the GRA can actually touch with tax percentages.")
-    
-st.subheader("Where This Information Comes From")
-st.write("All tax bands and tax percentages used in this calculation app are taken directly from the official website and public guidelines of the Ghana Revenue Authority. The calculation rules match the current systems used across the country.")
-
 st.divider()
 
+st.caption("Regulatory & Legal Source Attribution Statement:")
+
 st.caption(
-    """
-    Regulatory & Legal Source Attribution Statement:
-    
-    This progressive personal income tax bands, Pay-As-You-Earn (PAYE) rules, 
-    and statutory pension deduction percentages utilize the official statutory 
-    schedules published by the Ghana Revenue Authority (GRA).
-    
-    Access & Verification Reference Date: May 2026.
-    
-    Operational Prototype Disclaimer:** This web application is intended for 
-    informational purposes only and does not constitute formal tax advice.
-    """
+    "This progressive personal income tax bands, Pay-As-You-Earn (PAYE) rules, "
+    "and statutory pension deduction percentages utilize the official statutory "
+    "schedules published by the Ghana Revenue Authority (GRA)."
+)
+
+st.caption("Access & Verification Reference Date: May 2026.")
+
+st.caption(
+    "Operational Prototype Disclaimer: This web application is intended for "
+    "informational purposes only and does not constitute formal tax advice."
 )
