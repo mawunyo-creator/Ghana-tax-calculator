@@ -59,7 +59,7 @@ def calculate_primary_payroll_details(primary_basic_salary, primary_allowances, 
         primary_allocated_tax = primary_remaining_income * 0.30
         primary_tax_paid += primary_allocated_tax
         primary_band_breakdown.append({
-            "Tax Band Position": "Exceeding Balance",
+            "Tax Bands ": "Exceeding Balance",
             "Tax Rate": "30%",
             "Amount Taxed (GHS)": f"{primary_remaining_income:.2f}",
             "Tax Paid (GHS)": f"{primary_allocated_tax:.2f}"
@@ -126,7 +126,7 @@ def calculate_alternative_payroll_details(alternative_basic_salary, alternative_
             alternative_remaining_income = 0.0
             
         alternative_band_breakdown.append({
-            "Tax Band Position": alternative_band_name,
+            "Tax Bands": alternative_band_name,
             "Tax Rate": f"{alternative_tax_rate * 100}%",
             "Amount Taxed (GHS)": f"{alternative_allocated_amount:.2f}",
             "Tax Paid (GHS)": f"{alternative_allocated_tax:.2f}"
@@ -139,7 +139,7 @@ def calculate_alternative_payroll_details(alternative_basic_salary, alternative_
         alternative_allocated_tax = alternative_remaining_income * 0.30
         alternative_tax_paid += alternative_allocated_tax
         alternative_band_breakdown.append({
-            "Tax Band Position": "Exceeding Balance",
+            "Tax Bands": "Exceeding Balance",
             "Tax Rate": "30%",
             "Amount Taxed (GHS)": f"{alternative_remaining_income:.2f}",
             "Tax Paid (GHS)": f"{alternative_allocated_tax:.2f}"
@@ -339,7 +339,7 @@ with alternative_investment_column_left:
     alternative_tbill_investment = st.number_input("Enter the second monthly Treasury Bill savings target", min_value=0.0, value=0.0, key="alternative_t2")
     
 with alternative_investment_column_right:
-    alternative_tier3_rate = st.number_input("Enter the second voluntary Tier 3 retirement savings rate percentage", min_value=0.0, max_value=16.5, value=0.0, key="alternative_tr2")
+    alternative_tier3_rate = st.number_input("Enter the second voluntary Tier 3 retirement savings rate", min_value=0.0, max_value=16.5, value=0.0, key="alternative_tr2")
 
 # Alternative calculations engine call
 alternative_payroll_results = calculate_alternative_payroll_details(alternative_basic_salary, alternative_allowances, alternative_bonus, alternative_overtime, alternative_additional_deductions, alternative_tier3_rate)
@@ -401,12 +401,12 @@ with alternative_export_col_4:
 st.markdown("<h3 style='text-align: center;'>Official Ghana Income Tax Rates</h3>", unsafe_allow_html=True)
 
 official_tax_bands_data = [
-    {"Tax Band Position": "First Band", "Chargeable Income Amount (GHS)": "490.00", "Tax Rate Percentage": "0%"},
-    {"Tax Band Position": "Next Band", "Chargeable Income Amount (GHS)": "110.00", "Tax Rate Percentage": "5%"},
-    {"Tax Band Position": "Next Band", "Chargeable Income Amount (GHS)": "130.00", "Tax Rate Percentage": "10%"},
-    {"Tax Band Position": "Next Band", "Chargeable Income Amount (GHS)": "3,166.67", "Tax Rate Percentage": "17.5%"},
-    {"Tax Band Position": "Next Band", "Chargeable Income Amount (GHS)": "11,000.00", "Tax Rate Percentage": "25%"},
-    {"Tax Band Position": "Exceeding Balance", "Chargeable Income Amount (GHS)": "Above 15,396.67", "Tax Rate Percentage": "30%"}
+    {"Tax Bands": "First Band", "Chargeable Income Amount (GHS)": "490.00", "Tax Rate": "0%"},
+    {"Tax Bands": "Next Band", "Chargeable Income Amount (GHS)": "110.00", "Tax Rate": "5%"},
+    {"Tax Bands": "Next Band", "Chargeable Income Amount (GHS)": "130.00", "Tax Rate": "10%"},
+    {"Tax Bands": "Next Band", "Chargeable Income Amount (GHS)": "3,166.67", "Tax Rate": "17.5%"},
+    {"Tax Bands": "Next Band", "Chargeable Income Amount (GHS)": "11,000.00", "Tax Rate": "25%"},
+    {"Tax Bands": "Exceeding Balance", "Chargeable Income Amount (GHS)": "Above 15,396.67", "Tax Rate": "30%"}
 ]
 st.table(official_tax_bands_data)
 
